@@ -12,6 +12,8 @@
 # below:
 .git
 .gitignore
+.vscode
+README.md
 
 node_modules
 #!include:.gitignore
