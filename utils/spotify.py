@@ -29,7 +29,7 @@ def push_to_playlist(tracks, playlist_id):
         client_id=SPOTIFY_CLIENT_ID,
         client_secret=SPOTIFY_CLIENT_SECRET,
         redirect_uri=SPOTIFY_REDIRECT_URI,
-        cache_path="../utils/.spotify_cache",
+        cache_path="./utils/.spotify_cache",
     )
     sp = spotipy.Spotify(client_credentials_manager=creds)
     sp.user_playlist_replace_tracks(SPOTIFY_USER, playlist_id, tracks=tracks)

@@ -8,10 +8,17 @@ To create a new playlist you need to
 2. Get the playlist id. You can find it in the URL you get from the share button
 
 
-.
-└── playlist_repo
-    ├── deploy_function.sh
-    ├── main.py
-    └── requirements.txt
-
 export PYTHONPATH=$PWD
+
+# Deployment
+```
+ gcloud functions deploy playlist_name \
+    --entry-point playlist_function \
+    --runtime python37 \
+    --trigger-resource playlists_update \
+    --trigger-event google.pubsub.topic.publish \
+    --env-vars-file=.env.yaml \
+    --timeout 540s \
+    --region europe-west1 \
+    --verbosity info \
+```

@@ -20,8 +20,8 @@ def get_tracks():
 
     Returns:
         list -- A list of Spotify tracks song id (strings)
-    """    
-    
+    """
+
     query = """
     SELECT
         id
@@ -34,7 +34,7 @@ def get_tracks():
     """
     if ENVIRONMENT == "local":
         bq_client = bigquery.Client().from_service_account_json(
-            "../utils/rapsodie-21e551b04683.json"
+            "./utils/rapsodie-21e551b04683.json"
         )
     else:
         bq_client = bigquery.Client()
@@ -43,16 +43,8 @@ def get_tracks():
     return tracks
 
 
-def update_playlist(event, context):
-    """Updates the playlist of this file
-
-    Arguments:
-        event {dict} -- Some random stuff Google Cloud neeeds
-        context {dict} -- Some other random stuff Google Cloud needs
+if __name__ == "__main__":
+    """Used to test the function locally
     """
     tracks = get_tracks()
     spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")
-
-
-if __name__ == "__main__":
-    update_playlist("event", "context")
