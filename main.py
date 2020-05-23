@@ -2,6 +2,7 @@ import logging
 
 import playlist_random_tracks
 from utils import spotify
+from utils import pubsub
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -18,5 +19,7 @@ def random_tracks(event, context):
         metadata. The `event_id` field contains the Pub/Sub message ID. The
         `timestamp` field contains the publish time.
     """
-    tracks = playlist_random_tracks.get_tracks()
-    spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")
+    data = pubsub.decode_message_data(event)
+    if 'playlist_random_tracks' in data:
+        tracks = playlist_random_tracks.get_tracks()
+        spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")

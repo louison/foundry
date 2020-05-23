@@ -14,12 +14,15 @@ It must implement a `get_tracks` method that will be called by the cloud functio
 
 ## 3. Create the cloud function
 Update the `main.py` file to add the cloud function. The structure is always the same, get the tracks and then push to Spotify.
+Make sure that you filter out all events that are not related to your playlit
 
 Basically you'll always have something like
 ```
 def random_tracks(event, context):
-    tracks = playlist_random_tracks.get_tracks()
-    spotify.push_to_playlist(tracks, playlist_id)
+    data = pubsub.decode_message_data(event)
+    if 'playlist_random_tracks' in data: # make sure we're concerned
+        tracks = playlist_random_tracks.get_tracks()
+        spotify.push_to_playlist(tracks, playlist_id)
 ```
 The `event` and `context` parameters are required by Google Cloud and will allow us to update the functions asynchronously.
 
@@ -43,6 +46,7 @@ gcloud functions deploy playlist_nameofyourplaylist \
 - The second argument is the name of the function you created in the `main.py` file.
 - Do not change other parameters ⚠️
 
+## 5. Create the event !
 
 ## Side Notes
 🕵️‍♀️ If you need to store environment variables you can use a local `.env` file. If those variables need to be pushed to the cloud function using the .env.yaml file.
