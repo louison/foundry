@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def random_playlist(event, context):
+def random_tracks(event, context):
     """Creates a playlist with random tracks from BigQuery
 
     Arguments:
