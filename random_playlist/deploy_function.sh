@@ -1,5 +1,5 @@
- gcloud functions deploy playlist_maker \
-    --entry-point cloud_playlist \
+ gcloud functions deploy random_playlist \
+    --entry-point update_playlist \
     --runtime python37 \
     --trigger-resource playlists_update \
     --trigger-event google.pubsub.topic.publish \
