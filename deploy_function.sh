@@ -3,7 +3,7 @@
     --runtime python37 \
     --trigger-resource playlists_update \
     --trigger-event google.pubsub.topic.publish \
-    --set-env-vars PYTHON_ENV=development \
+    --env-vars-file=.env.yaml \
     --timeout 540s \
     --region europe-west1 \
     --verbosity info \
