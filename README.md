@@ -25,6 +25,7 @@ def random_tracks(event, context):
         spotify.push_to_playlist(tracks, playlist_id)
 ```
 The `event` and `context` parameters are required by Google Cloud and will allow us to update the functions asynchronously.
+Be careful with the name you use to update the playlist, if you mispell it, the playlist might never get updated.
 
 ## 4. Deploy your function
 Create a new `playlist_yourplaylist_deploy.sh` file to handle your function deployment.
@@ -46,7 +47,16 @@ gcloud functions deploy playlist_nameofyourplaylist \
 - The second argument is the name of the function you created in the `main.py` file.
 - Do not change other parameters ⚠️
 
-## 5. Create the event !
+## 5. Set up automatic updates
+To keep your playlist up to date we'll need to create a cron job using [Cloud Scheduler](https://console.cloud.google.com/cloudscheduler?project=rapsodie).
+Create a job with follwing parameter
+- name: `update_playlist_yourplaylistname`
+- frequency: how often your playlist will be updated. Here's [some doc](https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules?authuser=2#defining_the_job_schedule) to help you with the format.
+- target: `Pub/Sub`
+- topic: `playlists_update`
+- payload: the name of your playlist used for the cloud function, (the one that's in your if statement). Should look like `playlist_yourplaylistname`
+
+💥💥💥💥💥💥 You're live 💥💥💥💥💥💥
 
 ## Side Notes
 🕵️‍♀️ If you need to store environment variables you can use a local `.env` file. If those variables need to be pushed to the cloud function using the .env.yaml file.
