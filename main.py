@@ -2,13 +2,15 @@ from google.cloud import bigquery
 import logging
 from spotipy import SpotifyOAuth
 import spotipy
-import sys
+import os
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-def random_playlist(event, context):
+ENVIRONMENT = os.environ.get("PYTHON_ENV") or 'local'
+
+def random_playlist():
     QUERY = """
     SELECT
         id
@@ -19,13 +21,12 @@ def random_playlist(event, context):
     LIMIT
         10
     """
-    # bq_client = bigquery.Client()
-    bq_client = bigquery.Client().from_service_account_json('./rapsodie-21e551b04683.json')
+    if ENVIRONMENT == 'local':
+        bq_client = bigquery.Client().from_service_account_json('./rapsodie-21e551b04683.json')
+    else:
+        bq_client = bigquery.Client()
     rows = bq_client.query(QUERY).result()
-    tracks = []
-    for row in rows:
-        # print(row[0])
-        tracks.append(row[0])
+    tracks = [row[0] for row in rows]
     return tracks
 
 def push_to_playlist(tracks):
@@ -50,6 +51,10 @@ def push_to_playlist(tracks):
         tracks=tracks
     )
 
+def cloud_playlist(event, context):
+    tracks = random_playlist()
+    push_to_playlist(tracks)
+
 if __name__ == "__main__":
-    tracks = random_playlist('event', 'context')
+    tracks = random_playlist()
     push_to_playlist(tracks)
