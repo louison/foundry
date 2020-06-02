@@ -1,0 +1,11 @@
+gcloud functions deploy playlist_diggers \
+   --allow-unauthenticated \
+   --entry-point diggers \
+   --runtime python37 \
+   --trigger-resource playlists_update \
+   --trigger-event google.pubsub.topic.publish \
+   --env-vars-file .env.yaml \
+   --service-account playlist-maker@rapsodie.iam.gserviceaccount.com \
+   --timeout 540s \
+   --region europe-west1 \
+   --verbosity info \
