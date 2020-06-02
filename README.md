@@ -10,11 +10,11 @@ Get the playlist id. You can find it in the URL you get from the share button. I
 
 ## 2. Create your core logic
 Create a new file name `playlist_yourplaylist.py` at the root of the folder.
-It must implement a `get_tracks` method that will be called by the cloud function.
+It must implement a `get_tracks` method that will be called by the cloud function. This method must return the tracks id list.
 
 ## 3. Create the cloud function
 Update the `main.py` file to add the cloud function. The structure is always the same, get the tracks and then push to Spotify.
-Make sure that you filter out all events that are not related to your playlit
+Playlist updates are triggered by events end to a Pub/Sub channel (more info part 5). Simply make sure that you filter out all events that are not related to your playlist.
 
 Basically you'll always have something like
 ```
@@ -25,7 +25,7 @@ def random_tracks(event, context):
         spotify.push_to_playlist(tracks, playlist_id)
 ```
 The `event` and `context` parameters are required by Google Cloud and will allow us to update the functions asynchronously.
-Be careful with the name you use to update the playlist, if you mispell it, the playlist might never get updated.
+Be careful with the `if` condition that triggers the playlist update ! If you mispell it later on, the playlist might never get updated 😱.
 
 ## 4. Deploy your function
 Create a new `playlist_yourplaylist_deploy.sh` file to handle your function deployment.
@@ -46,6 +46,14 @@ gcloud functions deploy playlist_nameofyourplaylist \
 - The first argument defines the cloud function. It must start with `playlist_` so that we don't mess up the Cloud Console items and can easily identify them.
 - The second argument is the name of the function you created in the `main.py` file.
 - Do not change other parameters ⚠️
+
+Then run the following commands
+```
+chmod +x playlist_yourplaylist_deploy.sh
+./playlist_yourplaylist_deploy.sh
+```
+
+To test your playlist **don't use** the testing tab in cloud function but directly publish a message from the [PubSub interface](https://console.cloud.google.com/cloudpubsub/topic/detail/playlists_update?project=rapsodie&authuser=2&modal=publishmessage) with `yourplaylistevenname` in as the message body.
 
 ## 5. Set up automatic updates
 To keep your playlist up to date we'll need to create a cron job using [Cloud Scheduler](https://console.cloud.google.com/cloudscheduler?project=rapsodie).

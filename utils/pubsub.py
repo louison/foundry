@@ -1,4 +1,6 @@
 import base64
+import logging
+
 
 def decode_message_data(event):
     """Decode data content in PubSub message
@@ -11,4 +13,5 @@ def decode_message_data(event):
     Returns:
         string: The decoded value of the data key.
     """
-    return base64.b64decode(event['data']).decode('utf-8')
+    if "data" in event:
+        return base64.b64decode(event["data"]).decode("utf-8")

@@ -1,8 +1,8 @@
 import logging
 
+import playlist_diggers
 import playlist_random_tracks
-from utils import spotify
-from utils import pubsub
+from utils import pubsub, spotify
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -20,6 +20,15 @@ def random_tracks(event, context):
         `timestamp` field contains the publish time.
     """
     data = pubsub.decode_message_data(event)
-    if 'playlist_random_tracks' in data:
+    if "playlist_random_tracks" in data:
         tracks = playlist_random_tracks.get_tracks()
         spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")
+
+
+def diggers(event, context):
+    """Get small artists latest tracks
+    """
+    data = pubsub.decode_message_data(event)
+    if "playlist_diggers" in data:
+        tracks = playlist_diggers.get_tracks()  # default parameters
+        spotify.push_to_playlist(tracks, "2g2nZEjXnMW4jCDZcdw42M")
