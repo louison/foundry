@@ -17,7 +17,8 @@ logger.setLevel(logging.DEBUG)
 
 
 def get_tracks(max_timeframe=30, max_followers=5000):
-    """Get small artists latest tracks
+    """Get latests tracks for artists with less than max_followers
+    
 
     Args:
         max_timeframe (int, optional): [Oldest track]. Defaults to 30.
@@ -29,9 +30,10 @@ def get_tracks(max_timeframe=30, max_followers=5000):
         strack.name track,
         strack.id track_id,
         strack.album_release_date,
+        strack.popularity,
         sartist.name artist,
         sartist.id artist_id,
-        sartist.followers_total
+        sartist.followers_total,
     FROM
         rapsodie_main.spotify_track_artist_map AS sp_track_artist_map
     INNER JOIN
@@ -61,6 +63,7 @@ def get_tracks(max_timeframe=30, max_followers=5000):
     data = bq_client.query(query).result().to_dataframe()
     logger.info("Processing data")
     data.drop_duplicates(subset="artist_id", keep="first", inplace=True)
+    data.sort_values(by='popularity', ascending=False, inplace=True)
     logger.info("Done!")
     return data["track_id"].to_list()
 
