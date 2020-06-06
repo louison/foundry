@@ -59,6 +59,7 @@ To test your playlist **don't use** the testing tab in cloud function but direct
 To keep your playlist up to date we'll need to create a cron job using [Cloud Scheduler](https://console.cloud.google.com/cloudscheduler?project=rapsodie).
 Create a job with follwing parameter
 - name: `update_playlist_yourplaylistname`
+- desc: "Send an event to trigger the playlist update"
 - frequency: how often your playlist will be updated. Here's [some doc](https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules?authuser=2#defining_the_job_schedule) to help you with the format.
 - target: `Pub/Sub`
 - topic: `playlists_update`

@@ -47,4 +47,4 @@ if __name__ == "__main__":
     """Used to test the function locally
     """
     tracks = get_tracks()
-    spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")
+    spotify.push_to_playlist(tracks, "0uYrvZFH4IaaJDRz7mxXnE")
