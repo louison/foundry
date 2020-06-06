@@ -67,4 +67,4 @@ def get_tracks(max_timeframe=30, max_followers=5000):
 
 if __name__ == "__main__":
     tracks = get_tracks()
-    spotify.push_to_playlist(tracks, "2g2nZEjXnMW4jCDZcdw42M")
+    spotify.push_to_playlist(tracks, "4ZkG8wxZkTlmsQuvcDwKcS")

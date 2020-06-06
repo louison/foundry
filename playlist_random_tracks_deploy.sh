@@ -1,4 +1,5 @@
 gcloud functions deploy playlist_random_tracks \
+   --allow-unauthenticated \
    --entry-point random_tracks \
    --runtime python37 \
    --trigger-resource playlists_update \

@@ -22,7 +22,7 @@ def random_tracks(event, context):
     data = pubsub.decode_message_data(event)
     if "playlist_random_tracks" in data:
         tracks = playlist_random_tracks.get_tracks()
-        spotify.push_to_playlist(tracks, "6hlAehDHbcmZXXYCz6sl72")
+        spotify.push_to_playlist(tracks, "0uYrvZFH4IaaJDRz7mxXnE")
 
 
 def diggers(event, context):
@@ -31,4 +31,4 @@ def diggers(event, context):
     data = pubsub.decode_message_data(event)
     if "playlist_diggers" in data:
         tracks = playlist_diggers.get_tracks()  # default parameters
-        spotify.push_to_playlist(tracks, "2g2nZEjXnMW4jCDZcdw42M")
+        spotify.push_to_playlist(tracks, "4ZkG8wxZkTlmsQuvcDwKcS")
