@@ -32,4 +32,5 @@ def push_to_playlist(tracks, playlist_id):
         cache_path="./utils/.spotify_cache",
     )
     sp = spotipy.Spotify(client_credentials_manager=creds)
+    sp.current_user_playlists()
     sp.user_playlist_replace_tracks(SPOTIFY_USER, playlist_id, tracks=tracks)
