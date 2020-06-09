@@ -55,3 +55,15 @@ class User(dict):
             playlists.extend(response['items'])
         return playlists
 
+    def get_playlist_tracks(self,playlist_id):
+        tracks = []
+        offset = 0
+        response = self.client.playlist_tracks(playlist_id,offset=0)
+        if response['items']:
+            tracks.extend(response['items'])
+        while response['items']:
+            offset += 50
+            response = self.client.playlist_tracks(playlist_id, offset=offset)
+            tracks.extend(response['items'])
+        return tracks
+

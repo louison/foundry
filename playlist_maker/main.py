@@ -21,6 +21,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+PUSH_METHODS = ["append", "replace"]
+
 
 def entrypoint(event, context, message=None):
     if not message:
@@ -35,7 +37,6 @@ def entrypoint(event, context, message=None):
         generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
-
 
 
 def generic(message=None):
@@ -63,10 +64,17 @@ def generic(message=None):
         playlists = user.get_playlists()
         names = list(map(lambda x: x['name'], playlists))
         if playlist_name in names:
-            if message['override']:
+            push_method = message.get('push_method')
+            if push_method not in PUSH_METHODS:
+                raise ValueError(f"push method: {push_method} not supported")
+            if message.get('override', False):
                 playlist_object = list(filter(
                     lambda x: x['name'] == playlist_name, playlists
                 ))[0]
+                if push_method == "append":
+                    tracks = user.get_playlist_tracks(playlist_object['id'])
+                    tracks_id = list(map(lambda x: x['track']['id'], tracks))
+                    message['tracks'].extend(tracks_id)
             else:
                 raise ValueError(
                     f"Playlist with name: {playlist_name}"
@@ -104,6 +112,8 @@ def init():
         "public": True,
         "playlist_cover": "",
         "override": True,
+        "push_method": "replace",  # replace or append
+        "append": True,
         "tracks": ["0fAHY4PWSEbov0OHjj2Gek"],
     }
     with open('.spotify_cache', 'r') as file:
