@@ -33,6 +33,8 @@ def entrypoint(event, context, message=None):
         tracks = get_tracks()
         message['tracks'] = tracks
         generic(message)
+    else:
+        raise ValueError(f"{message.get('entrypoint')} is not supported")
 
 
 
