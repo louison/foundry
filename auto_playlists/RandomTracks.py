@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-import utils.spotify as spotify
 from auto_playlists.AutoPlaylist import AutoPlaylist
 
 load_dotenv()  # regular get env does not work
