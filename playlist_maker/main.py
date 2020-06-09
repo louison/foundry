@@ -6,6 +6,7 @@ import spotipy
 import os
 
 from playlist_maker.User import User
+from playlist_random_tracks import get_tracks
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -28,6 +29,11 @@ def entrypoint(event, context, message=None):
         message = base64.b64decode(event["data"]).decode("utf-8")
     if message['entrypoint'] == "generic":
         generic(message)
+    elif message['entrypoint'] == "random":
+        tracks = get_tracks()
+        message['tracks'] = tracks
+        generic(message)
+
 
 
 def generic(message=None):
@@ -88,7 +94,7 @@ def generic(message=None):
 
 def init():
     message = {
-        "entrypoint": "generic",
+        "entrypoint": "random",
         "username": "loulouxd",
         "playlist_name": "Random",
         "playlist_id": "",
