@@ -1,12 +1,11 @@
 import base64
 import json
 import logging
-import os
 import spotipy
 import os
 
+from auto_playlists import Diggers, RandomTracks
 from playlist_maker.User import User
-from playlist_random_tracks import get_tracks
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -27,7 +26,13 @@ def entrypoint(event, context, message=None):
     if message['entrypoint'] == "generic":
         generic(message)
     elif message['entrypoint'] == "random":
-        tracks = get_tracks()
+        random_tracks = RandomTracks()
+        tracks = random_tracks.get_tracks()
+        message['tracks'] = tracks
+        generic(message)
+    elif message['entrypoint'] == "diggers":
+        diggers = Diggers()
+        tracks = diggers.get_tracks()
         message['tracks'] = tracks
         generic(message)
     else:
@@ -103,9 +108,9 @@ def generic(message=None):
 
 def init():
     message = {
-        "entrypoint": "random",
+        "entrypoint": "diggers",
         "username": "loulouxd",
-        "playlist_name": "Random",
+        "playlist_name": "Diggers",
         "playlist_id": "",
         "description": "My super random playlist v3",
         "public": True,
