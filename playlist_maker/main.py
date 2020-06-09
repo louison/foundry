@@ -4,8 +4,6 @@ import logging
 import os
 import spotipy
 import os
-import argparse
-from google.cloud import bigquery
 
 from playlist_maker.User import User
 
@@ -28,7 +26,11 @@ def entrypoint(event, context, message=None):
         if not 'data' in event:
             return
         message = base64.b64decode(event["data"]).decode("utf-8")
+    if message['entrypoint'] == "generic":
+        generic(message)
 
+
+def generic(message=None):
     if not 'playlist_name' in message and not 'playlist_id' in message:
         raise ValueError("You must provide a name or an id for the playlist")
 
@@ -76,7 +78,7 @@ def entrypoint(event, context, message=None):
     os.remove(credentials_filepath)
 
 
-def main():
+def init():
     message = {
         "entrypoint": "generic",
         "username": "loulouxd",
@@ -95,4 +97,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    init()
