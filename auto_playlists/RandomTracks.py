@@ -43,10 +43,3 @@ class RandomTracks(AutoPlaylist):
         tracks = [row[0] for row in rows]
         return tracks
 
-
-if __name__ == "__main__":
-    """Used to test the function locally
-    """
-    random_tracks = RandomTracks()
-    tracks = random_tracks.get_tracks()
-    spotify.push_to_playlist(tracks, "0uYrvZFH4IaaJDRz7mxXnE")
