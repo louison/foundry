@@ -17,7 +17,7 @@ spotify_client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
 spotify_redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
 spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
-PUSH_METHODS = ["append", "replace"]
+PUSH_METHODS = ["append", "replace", "keep"]
 
 def entrypoint(event, context, message=None):
     if not message:
@@ -68,8 +68,12 @@ def generic(message=None):
                 ))[0]
                 if push_method == "append":
                     tracks = user.get_playlist_tracks(playlist_object['id'])
-                    tracks_id = list(map(lambda x: x['track']['id'], tracks))
-                    message['tracks'].extend(tracks_id)
+                    tracks_ids = list(map(lambda x: x['track']['id'], tracks))
+                    message['tracks'].extend(tracks_ids)
+                elif push_method == "keep":
+                    tracks = user.get_playlist_tracks(playlist_object['id'])
+                    tracks_ids = list(map(lambda x: x['track']['id'], tracks))
+                    message['tracks'] = tracks_ids
             else:
                 raise ValueError(
                     f"Playlist with name: {playlist_name}"
@@ -103,11 +107,11 @@ def init():
         "username": "loulouxd",
         "playlist_name": "Random",
         "playlist_id": "",
-        "description": "blabla",
+        "description": "My super random playlist v3",
         "public": True,
         "playlist_cover": "",
         "override": True,
-        "push_method": "replace",  # replace or append
+        "push_method": "keep",  # replace or append
         "append": True,
         "tracks": ["0fAHY4PWSEbov0OHjj2Gek"],
     }
