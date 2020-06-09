@@ -66,7 +66,9 @@ def generic(message=None):
         else:
             playlist_object = client.user_playlist_create(
                 user.username,
-                playlist_name
+                playlist_name,
+                public=message.get('public', False),
+                description=message.get('description', "")
             )
     else:
         playlist_object = client.playlist(message['playlist_id'])
@@ -74,6 +76,12 @@ def generic(message=None):
         user.username,
         playlist_object['id'],
         tracks=message['tracks']
+    )
+    client.user_playlist_change_details(
+        message['username'],
+        playlist_object['id'],
+        description=message.get('description', ""),
+        public=message.get('public', False)
     )
     os.remove(credentials_filepath)
 
