@@ -17,12 +17,7 @@ spotify_client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
 spotify_redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
 spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
 PUSH_METHODS = ["append", "replace"]
-
 
 def entrypoint(event, context, message=None):
     if not message:
