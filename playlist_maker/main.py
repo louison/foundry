@@ -35,7 +35,7 @@ def entrypoint(event, context, message=None):
         auto_playlist_class = AUTO_PLAYLIST.get(entrypoint_choice, None)
         if auto_playlist_class:
             auto_playlist = auto_playlist_class()
-            args = message.get('entrypoint_args',{})
+            args = message.get('entrypoint_args', {})
             tracks = auto_playlist.get_tracks(**args)
             message['tracks'] = tracks
         return generic(message)
@@ -113,18 +113,18 @@ def generic(message=None):
 def init():
     message = {
         "entrypoint": "diggers",
-        "entrypoint_args":{
+        "entrypoint_args": {
             'max_timeframe': 30,
-            'max_followers' :10000
+            'max_followers': 10000
         },
         "username": "loulouxd",
         "playlist_name": "Diggers",
         "playlist_id": "",
-        "description": "My super random playlist v3",
-        "public": True,
+        "description": "My super random playlist v9.2",
+        "public": False,
         "playlist_cover": "",
         "override": True,
-        "push_method": "keep",  # replace or append
+        "push_method": "replace",  # replace or append or keep
         "append": True,
         "tracks": ["0fAHY4PWSEbov0OHjj2Gek"],
     }
