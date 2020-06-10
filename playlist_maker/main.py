@@ -18,23 +18,27 @@ spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
 PUSH_METHODS = ["append", "replace", "keep"]
 
+AUTO_PLAYLIST = {
+    'generic': None,
+    'random': RandomTracks,
+    'diggers': Diggers
+}
+
+
 def entrypoint(event, context, message=None):
     if not message:
         if not 'data' in event:
             return
         message = base64.b64decode(event["data"]).decode("utf-8")
-    if message['entrypoint'] == "generic":
-        generic(message)
-    elif message['entrypoint'] == "random":
-        random_tracks = RandomTracks()
-        tracks = random_tracks.get_tracks()
-        message['tracks'] = tracks
-        generic(message)
-    elif message['entrypoint'] == "diggers":
-        diggers = Diggers()
-        tracks = diggers.get_tracks()
-        message['tracks'] = tracks
-        generic(message)
+    entrypoint_choice = message['entrypoint']
+    if entrypoint_choice in AUTO_PLAYLIST.keys():
+        auto_playlist_class = AUTO_PLAYLIST.get(entrypoint_choice, None)
+        if auto_playlist_class:
+            auto_playlist = auto_playlist_class()
+            args = message.get('entrypoint_args',{})
+            tracks = auto_playlist.get_tracks(**args)
+            message['tracks'] = tracks
+        return generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
 
@@ -109,6 +113,10 @@ def generic(message=None):
 def init():
     message = {
         "entrypoint": "diggers",
+        "entrypoint_args":{
+            'max_timeframe': 30,
+            'max_followers' :10000
+        },
         "username": "loulouxd",
         "playlist_name": "Diggers",
         "playlist_id": "",
