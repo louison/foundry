@@ -131,5 +131,5 @@ dmypy.json
 
 # local service account
 rapsodie-21e551b04683.json
-credentials.json
+*credentials.json
 .spotify_cache

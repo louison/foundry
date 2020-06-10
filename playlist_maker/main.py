@@ -114,11 +114,11 @@ def init():
     message = {
         "entrypoint": "diggers",
         "entrypoint_args": {
-            'max_timeframe': 30,
-            'max_followers': 10000
+            'max_timeframe': 90,
+            'max_followers': 1500
         },
-        "username": "loulouxd",
-        "playlist_name": "Diggers",
+        "username": "heus92",
+        "playlist_name": "goldiggers",
         "playlist_id": "",
         "description": "My super random playlist v9.2",
         "public": False,
