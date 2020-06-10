@@ -108,15 +108,15 @@ def generic(message=None):
 
 def init():
     message = {
-        "entrypoint": "diggers",
-        "username": "loulouxd",
-        "playlist_name": "Diggers",
+        "entrypoint": "random",
+        "username": "heus92",
+        "playlist_name": "weshalors",
         "playlist_id": "",
-        "description": "My super random playlist v3",
-        "public": True,
+        "description": "My super random playlist v9.2",
+        "public": False,
         "playlist_cover": "",
         "override": True,
-        "push_method": "keep",  # replace or append
+        "push_method": "replace",  # replace or append or keep
         "append": True,
         "tracks": ["0fAHY4PWSEbov0OHjj2Gek"],
     }
