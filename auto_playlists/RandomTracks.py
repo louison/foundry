@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-# import utils.spotify as spotify
 from auto_playlists.AutoPlaylist import AutoPlaylist
 
 load_dotenv()  # regular get env does not work
@@ -44,10 +43,3 @@ class RandomTracks(AutoPlaylist):
         tracks = [row[0] for row in rows]
         return tracks
 
-
-if __name__ == "__main__":
-    """Used to test the function locally
-    """
-    random_tracks = RandomTracks()
-    tracks = random_tracks.get_tracks()
-    spotify.push_to_playlist(tracks, "0uYrvZFH4IaaJDRz7mxXnE")

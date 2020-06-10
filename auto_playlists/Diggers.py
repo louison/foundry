@@ -64,9 +64,3 @@ class Diggers(AutoPlaylist):
         data.drop_duplicates(subset="artist_id", keep="first", inplace=True)
         logger.info("Done!")
         return data["track_id"].to_list()
-
-
-if __name__ == "__main__":
-    diggers = Diggers()
-    tracks = diggers.get_tracks()
-    spotify.push_to_playlist(tracks, "4ZkG8wxZkTlmsQuvcDwKcS")
