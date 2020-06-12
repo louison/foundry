@@ -17,3 +17,6 @@ README.md
 
 node_modules
 #!include:.gitignore
+
+rapsodie-21e551b04683.json
+# *credentials.json
