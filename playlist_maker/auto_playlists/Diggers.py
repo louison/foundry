@@ -5,7 +5,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-from auto_playlists.AutoPlaylist import AutoPlaylist
+from playlist_maker.auto_playlists import AutoPlaylist
 
 load_dotenv()
 

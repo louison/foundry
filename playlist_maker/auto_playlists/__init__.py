@@ -1,2 +1,2 @@
-from auto_playlists.Diggers import *
-from auto_playlists.RandomTracks import *
+from playlist_maker.auto_playlists.Diggers import *
+from playlist_maker.auto_playlists.RandomTracks import *

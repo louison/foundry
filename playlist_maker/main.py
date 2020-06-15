@@ -5,8 +5,8 @@ import os
 
 import spotipy
 
-from auto_playlists import Diggers, RandomTracks
-from User import User
+from playlist_maker.auto_playlists import Diggers, RandomTracks
+from playlist_maker.User import User
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
