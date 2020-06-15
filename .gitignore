@@ -129,5 +129,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# local service account
-rapsodie-21e551b04683.json
+*credentials.json
+*.spotify_cache
+*env.yaml
+*.DS_Store
