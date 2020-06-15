@@ -54,7 +54,7 @@ class Diggers(AutoPlaylist):
         logger.info("Fetching data in database...")
         if ENVIRONMENT == "local":
             bq_client = bigquery.Client().from_service_account_json(
-                "./utils/rapsodie-21e551b04683.json"
+                "./sandbox_credentials.json"
             )
         else:
             bq_client = bigquery.Client()

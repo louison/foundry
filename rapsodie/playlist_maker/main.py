@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 import spotipy
 
@@ -41,14 +42,19 @@ def generic(message=None):
     if not "playlist_name" in message and not "playlist_id" in message:
         raise ValueError("You must provide a name or an id for the playlist")
 
+    credentials = message["credentials"]
+    credentials_path = f"/tmp/{message['username']}_credentials.json"
+    with open(credentials_path, "w") as f:
+        f.write(json.dumps(credentials))
+        
     creds = spotipy.SpotifyOAuth(
         scope=spotify_scopes,
         client_id=spotify_client_id,
         client_secret=spotify_client_secret,
         redirect_uri=spotify_redirect_uri,
-        cache_path=".spotify_cache",
+        # cache_path=".spotify_cache",
+        cache_path=credentials_path,
     )
-    spotipy.Spotify() # why this line?
     client = spotipy.Spotify(client_credentials_manager=creds)
     user = User(message["username"], client=client)
     user.connect()
@@ -96,4 +102,5 @@ def generic(message=None):
         description=message.get("description", ""),
         public=message.get("public", False),
     )
+    os.remove(credentials_path)
 
