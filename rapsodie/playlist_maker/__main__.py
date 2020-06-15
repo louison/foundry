@@ -1,6 +1,5 @@
 import json
-# from rapsodie.playlist_maker import entrypoint
-from rapsodie.playlist_maker import main as entrypoint
+from rapsodie.playlist_maker import entrypoint
 
 
 def init():
