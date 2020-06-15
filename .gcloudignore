@@ -17,3 +17,7 @@ README.md
 
 node_modules
 #!include:.gitignore
+
+
+*credentials.json
+*.spotify_cache

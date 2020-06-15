@@ -1,11 +1,10 @@
 import logging
 import os
 
-import pandas as pd
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-from auto_playlists.AutoPlaylist import AutoPlaylist
+from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
 
 load_dotenv()
 
@@ -55,7 +54,7 @@ class Diggers(AutoPlaylist):
         logger.info("Fetching data in database...")
         if ENVIRONMENT == "local":
             bq_client = bigquery.Client().from_service_account_json(
-                "./utils/rapsodie-21e551b04683.json"
+                "./sandbox_credentials.json"
             )
         else:
             bq_client = bigquery.Client()
