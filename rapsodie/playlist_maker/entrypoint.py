@@ -1,12 +1,10 @@
-import base64
-import json
 import logging
 import os
 
 import spotipy
 
-from playlist_maker.auto_playlists import Diggers, RandomTracks
-from playlist_maker.User import User
+from rapsodie.playlist_maker.auto_playlists import Diggers, RandomTracks
+from rapsodie.playlist_maker.User import User
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -22,7 +20,7 @@ PUSH_METHODS = ["append", "replace", "keep"]
 AUTO_PLAYLIST = {"generic": None, "random": RandomTracks, "diggers": Diggers}
 
 
-def entrypoint(event, context):
+def start(event, context):
     message = event
 
     entrypoint_choice = message["entrypoint"]

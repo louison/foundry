@@ -1,6 +1,6 @@
 gcloud functions deploy playlist_maker \
    --allow-unauthenticated \
-   --entry-point entrypoint \
+   --entry-point main \
    --runtime python37 \
    --trigger-resource playlists_update \
    --trigger-event google.pubsub.topic.publish \

@@ -1,5 +1,5 @@
-from playlist_maker import main
+from rapsodie.playlist_maker import entrypoint
 
 
 def main(event, context):
-    main.entrypoint(event, context)
+    entrypoint.start(event, context)

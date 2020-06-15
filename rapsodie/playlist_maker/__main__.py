@@ -1,5 +1,6 @@
 import json
-from playlist_maker import main
+from rapsodie.playlist_maker import entrypoint
+
 
 def init():
     message = {
@@ -19,8 +20,7 @@ def init():
     with open(".spotify_cache", "r") as file:
         creds = json.load(file)
     message["credentials"] = creds
-    main.entrypoint(message, None)
-    # entrypoint(None, None, message=message)
+    entrypoint.start(message, None)
 
 
 if __name__ == "__main__":

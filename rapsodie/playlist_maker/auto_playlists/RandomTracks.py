@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-from playlist_maker.auto_playlists.AutoPlaylist import AutoPlaylist
+from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
 
 load_dotenv()  # regular get env does not work
 
