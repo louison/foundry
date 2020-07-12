@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 import json
@@ -22,7 +23,11 @@ AUTO_PLAYLIST = {"generic": None, "random": RandomTracks, "diggers": Diggers}
 
 
 def start(event, context):
-    message = event
+    if 'data' in event:
+        message = base64.b64decode(event['data']).decode('utf-8')
+        message = json.loads(message)
+    else:
+        message = event
 
     entrypoint_choice = message["entrypoint"]
     if entrypoint_choice in AUTO_PLAYLIST.keys():
