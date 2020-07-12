@@ -133,3 +133,4 @@ dmypy.json
 *.spotify_cache
 *env.yaml
 *.DS_Store
+/.idea/
