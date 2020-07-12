@@ -7,6 +7,7 @@ import spotipy
 
 from rapsodie.playlist_maker.auto_playlists import Diggers, RandomTracks
 from rapsodie.playlist_maker.User import User
+from rapsodie.playlist_maker.utils import chunks
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ def generic(message=None):
     credentials_path = f"/tmp/{message['username']}_credentials.json"
     with open(credentials_path, "w") as f:
         f.write(json.dumps(credentials))
-        
+
     creds = spotipy.SpotifyOAuth(
         scope=spotify_scopes,
         client_id=spotify_client_id,
@@ -98,9 +99,20 @@ def generic(message=None):
             )
     else:
         playlist_object = client.playlist(message["playlist_id"])
+
+    track_chunks = chunks(message['tracks'], 100)
+    # First empty the playlist
     client.user_playlist_replace_tracks(
-        user.username, playlist_object["id"], tracks=message["tracks"]
+        user.username,
+        playlist_object["id"],
+        tracks=[]
     )
+    # Then append new tracks by batch of 100
+    for chunk in track_chunks:
+        client.user_playlist_add_tracks(
+            user.username, playlist_object["id"], tracks=chunk
+        )
+
     client.user_playlist_change_details(
         message["username"],
         playlist_object["id"],
@@ -108,4 +120,3 @@ def generic(message=None):
         public=message.get("public", False),
     )
     os.remove(credentials_path)
-
