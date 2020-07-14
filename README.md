@@ -1,6 +1,10 @@
 # Foundry
 
-The foundry app (previsouly known as the playlist maker) is used by Rapsodie to push machine-generated playlists on Spotify.
+The foundry app (previsouly known as the playlist maker) is used by Rapsodie to push machine-generated playlists on Spotify that can update regularly.
+
+### TODO
+
+[ ] create doc for playlist that never gets updated
 
 ## Design
 
@@ -15,17 +19,20 @@ For example the `RandomTracks.py` file defines the `RandomTracks` class with the
 ## Run locally
 
 ### Virtual env
+
 ```sh
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 ### Spotify credentials
+
 At the root of the repo run the following commands
+
 ```sh
 export PYTHONPATH=$(pwd)
 export SPOTIFY_CLIENT_ID=e109534e11a24370aec072e3c798d41f
-export SPOTIFY_CLIENT_SECRET= 
+export SPOTIFY_CLIENT_SECRET=
 export SPOTIFY_REDIRECT_URI=https://localhost:8888
 export SPOTIFY_SCOPES="playlist-read-collaborative playlist-modify-public playlist-read-private playlist-modify-private"
 python scripts/connect.py -u your_spotify_username
@@ -34,10 +41,12 @@ python scripts/connect.py -u your_spotify_username
 This will generate a `.spotify_cache` file at the root of the repo.
 
 ### Personal event
+
 To run Foundry locally you should start by defining your own event. It will simulate the kind of event that is sent on Cloud Scheduler to trigger the function in production. You can find a template in the `event/` directory at the root or the repo.
 
 Here's an example of how to complete it
-```json
+
+```
 {
     "entrypoint": "diggers", # which playlist is concerned [random, diggers]
     "username": "heus92", # your Spotify user name
@@ -49,30 +58,70 @@ Here's an example of how to complete it
     "override": "True", # if False playlist should be empty not to fail
     "push_method": "replace", # [append, replace, keep]
     "append": "True", # not sure why we have this tbh
-    "tracks": [], # not implemented 
+    "tracks": [], # not implemented
     "credentials": {} # copy .spotify_cache file json
 }
 ```
 
-Make sure to name with the following convention to make sure you're credentials won't be committed: `user-entrypoint-event.json`. 
+Make sure to name with the following convention to make sure you're credentials won't be committed: `user-entrypoint-event.json`.
 
 For example Rashad's event for the random playlist will be name `rashad-random-event.json` and production event for the diggers playlist will be `rapsodie-diggers-event.json`
 
-### Go live ! 
-Once you're all set up change the event file to be used in the `rapsodie/playlist_maker/__main__.py` file 
+### Go live !
+
+Once you're all set up change the event file to be used in the `rapsodie/playlist_maker/__main__.py` file
+
 ```python
 event = "rashad-random-event.json"
 ```
 
 And you can then run the magic command
+
 ```sh
 python rapsodie/playlist_maker/__main__.py
 ```
 
-## deploy to gcp
+## New playlist
+
+To illustrate this section we'll use the example of a playlist made of 10 random tracks.
+
+1. create a new `RandomTrack.py` file
+
+2. in this file create your playlist class inheriting from `AutoPlaylist`
+
+```python
+class RandomTracks(AutoPlaylist):
+    ...
+```
+
+3. make sure this class implements a `get_tracks()` method.
+
+```python
+class RandomTracks(AutoPlaylist):
+    def get_tracks(self):
+        ...
+```
+
+It can take as many arguments as needed.
+
+4. in the `entrypoint.py` file update the `AUTO_PLAYLIST` variable with
+
+```python
+AUTO_PLAYLIST = {"generic": None, "random": RandomTracks}
+```
+
+5. update your personal event with your new entrypoint, to make a dry run to make sure everything is working as intented.
+
+```sh
+python rapsodie/playlist_maker/__main.py
+```
+
+6. congrats you've created a new Rapsodie playlist 🎉
+
+## Deploy to GCP
+
+After you've created your new playlist, you'd want to make it live
 
 ### deploy function
 
 ### create new trigger
-
-export PYTHONPATH=\$(pwd) export SPOTIFY_CLIENT_ID=e109534e11a24370aec072e3c798d41f export SPOTIFY_CLIENT_SECRET= export SPOTIFY_SCOPES="playlist-read-collaborative playlist-modify-public playlist-read-private playlist-modify-private" export SPOTIFY_REDIRECT_URI=https://localhost:8888
