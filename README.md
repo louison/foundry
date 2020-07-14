@@ -4,7 +4,7 @@ The foundry app (previsouly known as the playlist maker) is used by Rapsodie to 
 
 ### TODO
 
-[ ] create doc for playlist that never gets updated
+- [ ] create doc for playlist that never gets updated
 
 ## Design
 
@@ -120,8 +120,38 @@ python rapsodie/playlist_maker/__main.py
 
 ## Deploy to GCP
 
-After you've created your new playlist, you'd want to make it live
+After you've created your new playlist, you'd want to make it live for the world to enjoy it!
 
-### deploy function
+### Cloud function deployment
 
-### create new trigger
+If your new playlist requires new environment variables (credentials, global stuff..) update the `.env.yaml` file.
+
+Then, everything is handled. Run:
+
+```sh
+./deploy_function.sh
+```
+
+The process is quite long and usually takes 2 minutes.
+
+### Trigger the function
+
+Remember that the trigger is how the playlist will be updated. Google Cloud Scheduler will send an event to a Pub/Sub topic on which the function is listening. Each event will trigger a Foundry run.
+
+1. go to [Google Cloud Scheduler](https://console.cloud.google.com/cloudscheduler?project=rapsodie) UI.
+
+2. click on `create job`
+
+3. name your job like `update_playlist_yourplaylist`
+
+4. give it a nice and short description
+
+5. to help write the frequency in the cron language you can use [this website](https://crontab.guru/)
+
+6. choose your timezone
+
+7. choose `Pub/Sub` as target
+
+8. write `playlists_update` as topic (it already exists and Foundry is listening there)
+
+9. the payload is the production version of your custom event. basically you update the information to make it match Rapsodie account (username, playlistname, and credentials)
