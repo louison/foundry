@@ -1,0 +1,14 @@
+{
+    "entrypoint": "entrypoint_method",
+    "username": "spotify_user_id",
+    "playlist_name": "",
+    "playlist_id": "",
+    "description": "",
+    "public": "False",
+    "playlist_cover": "",
+    "override": "True",
+    "push_method": "replace",
+    "append": "True",
+    "tracks": [],
+    "credentials": {"access_token": "", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "", "scope": "playlist-modify-private playlist-modify-public playlist-read-collaborative playlist-read-private", "expires_at": 1594718774}
+}

@@ -5,7 +5,7 @@ from rapsodie.playlist_maker import entrypoint
 
 
 def init():
-    event = "rashad-diggers-event.json"
+    event = "rashad-random-event.json"
     events_dir = os.getcwd() + "/events/"
     with open(events_dir + event) as f:
         message = json.load(f)
