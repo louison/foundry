@@ -4,8 +4,8 @@ from rapsodie.playlist_maker import entrypoint
 
 def init():
     message = {
-        "entrypoint": "diggers",
-        "entrypoint_args": {"max_timeframe": 90, "max_followers": 1500},
+        "entrypoint": "random",
+        # "entrypoint_args": {"max_timeframe": 90, "max_followers": 1500},
         "username": "heus92",
         "playlist_name": "goldiggers",
         "playlist_id": "",
