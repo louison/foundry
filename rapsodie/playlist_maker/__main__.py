@@ -9,7 +9,7 @@ def init():
         "username": "heus92",
         "playlist_name": "goldiggers",
         "playlist_id": "",
-        "description": "My super random playlist v9.2",
+        "description": "coucou",
         "public": False,
         "playlist_cover": "",
         "override": True,

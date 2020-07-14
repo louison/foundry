@@ -1,0 +1,14 @@
+{
+    "entrypoint": "random",
+    "username": "rogf0dbg03x23xcod0ya7zapf",
+    "playlist_name": "sandbox",
+    "playlist_id": "",
+    "description": "Random tracks for test",
+    "public": "False",
+    "playlist_cover": "",
+    "override": "True",
+    "push_method": "replace",
+    "append": "True",
+    "tracks": ["0fAHY4PWSEbov0OHjj2Gek"],
+    "credentials": {"access_token": "BQCgIcomRX9YkaX5KmRnTVKfvjLXYsHALgMuvcq_NJ4IMQiHu-LCPB55w8Gemd2Fpe0_JSs3c1q5wxYXBxZEkeipEDDS05BpgPYfYrEcl0VfsS8HTle1zGa06srR3emKNNA-rMTRq3JJvKsgGlLg6UqSXGd2-stwp7fx8Ozgp246OmVOY-U5M90rMKJJ3G6_qGc3ep1LmZtA_aTM_oQjWTAWCHf-PvtwMHX33a3HknpQ", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "AQA6bxyrErRk48L4o2Oi8Rz63VjCgq19cfRuMdK7m-60m4iTe3LGalO1hPL2swyOZYB_-eIUO1FxlshOm8IQD655fmq5c0bhpKSJIPcjP7EyCSYeTnZuI53QLJ7yeRD8Lzo", "scope": "playlist-modify-private playlist-modify-public playlist-read-collaborative playlist-read-private", "expires_at": 1594715396}
+}

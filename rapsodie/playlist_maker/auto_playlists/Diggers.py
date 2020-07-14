@@ -61,8 +61,15 @@ class Diggers(AutoPlaylist):
         else:
             bq_client = bigquery.Client()
         data = bq_client.query(query).result().to_dataframe()
+        
         logger.info("Processing data")
-        data.drop_duplicates(subset="artist_id", keep="first", inplace=True)
+        data.drop_duplicates(
+            subset="track_id", keep="first", inplace=True
+        )  # remove song duplicates
+        data.drop_duplicates(
+            subset="artist_id", keep="first", inplace=True
+        )  # one song per artist
         data = data[:50]
         logger.info("Done!")
+        
         return data["track_id"].to_list()
