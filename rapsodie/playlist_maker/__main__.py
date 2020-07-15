@@ -4,12 +4,12 @@ from rapsodie.playlist_maker import entrypoint
 
 def init():
     message = {
-        "entrypoint": "diggers",
-        "entrypoint_args": {"max_timeframe": 90, "max_followers": 1500},
-        "username": "heus92",
-        "playlist_name": "goldiggers",
+        "entrypoint": "allartists",
+        "entrypoint_args": {},
+        "username": "loulouxd",
+        "playlist_name": "allartists",
         "playlist_id": "",
-        "description": "My super random playlist v9.2",
+        "description": "All artists",
         "public": False,
         "playlist_cover": "",
         "override": True,

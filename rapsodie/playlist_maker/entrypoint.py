@@ -7,6 +7,7 @@ import spotipy
 
 from rapsodie.playlist_maker.auto_playlists import Diggers, RandomTracks
 from rapsodie.playlist_maker.User import User
+from rapsodie.playlist_maker.auto_playlists.AllArtists import AllArtists
 from rapsodie.playlist_maker.utils import chunks
 
 logging.basicConfig()
@@ -20,7 +21,7 @@ spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
 PUSH_METHODS = ["append", "replace", "keep"]
 
-AUTO_PLAYLIST = {"generic": None, "random": RandomTracks, "diggers": Diggers}
+AUTO_PLAYLIST = {"generic": None, "random": RandomTracks, "diggers": Diggers, "allartists": AllArtists}
 
 
 def start(event, context):
