@@ -129,8 +129,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-*credentials.json
-*.spotify_cache
+*.spotify_cache*
 *env.yaml
 *.DS_Store
 /.idea/
+/.vscode/
+*-event.json
+/credentials.json

@@ -29,6 +29,7 @@ class Diggers(AutoPlaylist):
             strack.name track,
             strack.id track_id,
             strack.album_release_date,
+            strack.popularity,
             sartist.name artist,
             sartist.id artist_id,
             sartist.followers_total
@@ -47,6 +48,7 @@ class Diggers(AutoPlaylist):
             AND sartist.followers_total < {max_followers}
             AND DATE_DIFF(CURRENT_DATE('Europe/Paris'), strack.album_release_date, DAY) <= {max_timeframe}
         ORDER BY
+            popularity DESC,
             album_release_date DESC,
             followers_total DESC
         """
@@ -59,7 +61,15 @@ class Diggers(AutoPlaylist):
         else:
             bq_client = bigquery.Client()
         data = bq_client.query(query).result().to_dataframe()
+        
         logger.info("Processing data")
-        data.drop_duplicates(subset="artist_id", keep="first", inplace=True)
+        data.drop_duplicates(
+            subset="track_id", keep="first", inplace=True
+        )  # remove song duplicates
+        data.drop_duplicates(
+            subset="artist_id", keep="first", inplace=True
+        )  # one song per artist
+        data = data[:50]
         logger.info("Done!")
+        
         return data["track_id"].to_list()

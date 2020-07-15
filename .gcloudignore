@@ -20,4 +20,5 @@ node_modules
 
 
 *credentials.json
-*.spotify_cache
+*.spotify_cache*
+*_events.json
