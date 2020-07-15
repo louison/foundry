@@ -10,11 +10,11 @@ The foundry app (previsouly known as the playlist maker) is used by Rapsodie to 
 
 Foundry is basically just a Google Cloud Function triggered by events sent on a PubSub topic. Each playlist is triggered by a given event which contains all necessary information for the playlist to be created/updated.
 
-The core playlist logic is containted in Foundry within classes in the `auto_playlists` directory.
+The core playlist logic is containted in Foundry within classes in the [auto_playlists](rapsodie/playlist_maker/auto_playlists) directory.
 
-The execution logic is handled in the `entrypoint.py` file.
+The execution logic is handled in the [entrypoint.py](rapsodie/playlist_maker/entrypoint.py) file.
 
-For example the `RandomTracks.py` file defines the `RandomTracks` class with the `get_tracks()` method. This method fetches 10 random track in the db rand returns them. Those tracks are them passed to the `generic()` method that will connect to Spotify and update/create the playlist if needed.
+For example the [RandomTracks.py](rapsodie/playlist_maker/auto_playlists/RandomTracks.py) file defines the `RandomTracks` class with the `get_tracks()` method. This method fetches 10 random track in the db rand returns them. Those tracks are them passed to the `generic()` method that will connect to Spotify and update/create the playlist if needed.
 
 ## Run locally
 
@@ -42,7 +42,7 @@ This will generate a `.spotify_cache` file at the root of the repo.
 
 ### Personal event
 
-To run Foundry locally you should start by defining your own event. It will simulate the kind of event that is sent on Cloud Scheduler to trigger the function in production. You can find a template in the `event/` directory at the root or the repo.
+To run Foundry locally you should start by defining your own event. It will simulate the kind of event that is sent on Cloud Scheduler to trigger the function in production. You can find a template in the [events](events) directory at the root or the repo.
 
 Here's an example of how to complete it
 
