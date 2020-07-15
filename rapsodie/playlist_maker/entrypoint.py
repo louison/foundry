@@ -21,7 +21,12 @@ spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
 PUSH_METHODS = ["append", "replace", "keep"]
 
-AUTO_PLAYLIST = {"generic": None, "random": RandomTracks, "diggers": Diggers, "allartists": AllArtists}
+AUTO_PLAYLIST = {
+    "generic": None,
+    "random": RandomTracks,
+    "diggers": Diggers,
+    "allartists": AllArtists
+}
 
 
 def start(event, context):
