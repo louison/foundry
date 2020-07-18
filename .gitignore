@@ -136,3 +136,4 @@ dmypy.json
 /.vscode/
 *-event.json
 /credentials.json
+sandox_creds.json

@@ -22,3 +22,4 @@ node_modules
 *credentials.json
 *.spotify_cache*
 *_events.json
+sandox_creds.json
