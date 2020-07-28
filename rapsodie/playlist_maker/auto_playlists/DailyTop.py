@@ -20,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 relevant_columns = [
     "track",
     "track_id",
+    "isrc",
     "playcount",
     "playcount_diff",
     "artist",
@@ -36,17 +37,16 @@ class DailyTop(AutoPlaylist):
             .drop_duplicates(subset=["update_date"])
         )
         nb_rows = track_data.shape[0]
-        if nb_rows != 2:
+        if nb_rows < 2:
             return
-
         today = dt.date(2020, 7, 17)
         ystdy = today - dt.timedelta(days=1)
         bfr_ystdy = today - dt.timedelta(days=2)
         dates = track_data["update_date"].to_list()
         if (ystdy in dates) and (bfr_ystdy in dates):
             track_data["playcount_diff"] = track_data["playcount"].diff(periods=-1)
+            # success
             return track_data[relevant_columns].iloc[0]
-        print("else", track_data["isrc"].iloc[0])
         return
 
     def get_tracks(self, top_length=50):
@@ -109,28 +109,32 @@ class DailyTop(AutoPlaylist):
         data.drop_duplicates(subset=["last_updated"], inplace=True)
         data = data[data["album_type"] != "compilation"]
         data = data[data["album_type"] != "single"]
-        # data.dropna(subset=['last_updated'], inplace=True)
         data["update_date"] = data.apply(lambda x: x["last_updated"].date(), axis=1)
         data["primary_album_artist_id"] = data.apply(
             lambda x: x["album_artists"][0], axis=1
         )
 
-        data.sort_values(
-            by=["track_id", "last_updated"], ascending=False, inplace=True
-        )  # keep ?
-
-        # remove bad artists
+        # Remove bad artists
         data = data[data["artist_id"] != "55Aa2cqylxrFIXC767Z865"]  # Lil Wayne
         data = data[data["artist_id"] != "3nFkdlSjzX9mRTtwJOzDYB"]  # Jay-Z
         data = data[data["artist_id"] != "5j4HeCoUlzhfWtjAfM1acR"]  # Stroame
         data = data[
             ~data["primary_album_artist_id"].isin(["0LyfQWJT6nXafLPZqxe9Of"])
         ]  # Various artists for f*cking compliations
+        data = data[data["artist_id"] != "1KQJOTeIMbixtnSWY4sYs2"]  # Paky IT
 
+        data.sort_values(
+            by=["track_id", "last_updated"], ascending=False, inplace=True
+        )  # keep ?
+
+        # Compute playcount delta
         logger.info("computing diff playcount")
         start = time.time()
         delta = pd.DataFrame(columns=relevant_columns)
-        for isrc in data["isrc"].unique():
+        nb_isrc = data["isrc"].nunique()
+        for i, isrc in enumerate(data["isrc"].unique()):
+            if i % 100 == 0:
+                logger.info(f"step {i}/{nb_isrc}")
             delta = delta.append(self.compute_playcount_diff(data, isrc))
         end = time.time()
         logger.info(f"done with duration: {round(end-start,2)}s")
