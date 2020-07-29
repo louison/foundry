@@ -6,6 +6,7 @@ import time
 import pandas as pd
 from dotenv import load_dotenv
 from google.cloud import bigquery
+from twitter import Twitter, OAuth
 
 from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
 
@@ -30,6 +31,39 @@ relevant_columns = [
 
 
 class DailyTop(AutoPlaylist):
+    def create_tweet(self, df, top=5):
+        # TODO: use twitter handles of rappers we have
+        tweet = ""
+        while len(tweet) > 280 or not tweet:
+            i = 1
+            l = []
+            for index, row in df[:top].iterrows():
+                l.append(
+                    (
+                        i,
+                        row["track"],
+                        row["artist"],
+                        round(row["playcount_diff"] / row["playcount"] * 100, 2),
+                    )
+                )
+                i += 1
+            tweet = f"🤖 Top {top} des sons les plus streamés hier\n"
+            for track in l:
+                tweet += f"#{track[0]} {track[1]}, {track[2]} +{track[3]}%\n"
+            tweet += "https://sdz.sh/YwpKZ6"
+            top -= 1
+
+        t = Twitter(
+            auth=OAuth(
+                "1294658089-fTUOaVJ8V3IKPgQ8pj4g4jSWRc9OxAUot28QD8q",
+                "muFlvClaGqvmeGsn2dhGmWTNaHeMMC6aecaDapIonsoZr",
+                "idwPNaHFvcgtioKmfjvkchZZs",
+                "ZMS1gmPuOrLIfEhOcefiOR0UhkKGFO7aeHDuW42TC7ZhyzGGDn",
+            )
+        )
+        response = t.statuses.update(status=tweet)
+        return response
+
     def compute_playcount_diff(self, df, isrc):
         track_data = (
             df[df["isrc"] == isrc]
@@ -93,7 +127,8 @@ class DailyTop(AutoPlaylist):
         """
 
         # Get Data
-        logger.info("fetching data from bigquery")
+        logger.info("fetch data from bigquery")
+        start = time.time()
         if ENVIRONMENT == "local":
             bq_client = bigquery.Client().from_service_account_json(
                 "./sandox_creds.json"
@@ -102,9 +137,11 @@ class DailyTop(AutoPlaylist):
             logger.debug("SUCE")
             # bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
+        end = time.time()
+        logger.debug(f"data fetched in {int(end-start)}s")
 
         # Clean raw data
-        logger.info("cleaning data")
+        logger.info("clean data")
         data.dropna(subset=["artist_id", "last_updated"], inplace=True)
         data.drop_duplicates(subset=["last_updated"], inplace=True)
         data = data[data["album_type"] != "compilation"]
@@ -128,16 +165,24 @@ class DailyTop(AutoPlaylist):
         )  # keep ?
 
         # Compute playcount delta
-        logger.info("computing diff playcount")
+        logger.info("compute diff playcount...")
         start = time.time()
         delta = pd.DataFrame(columns=relevant_columns)
         nb_isrc = data["isrc"].nunique()
         for i, isrc in enumerate(data["isrc"].unique()):
-            if i % 100 == 0:
-                logger.info(f"step {i}/{nb_isrc}")
+            # if i % 100 == 0:
+            #     logger.info(f"computing delta {i}/{nb_isrc}")
             delta = delta.append(self.compute_playcount_diff(data, isrc))
         end = time.time()
         logger.info(f"done with duration: {round(end-start,2)}s")
         delta.drop_duplicates(subset=["track_id", "track"], keep="first", inplace=True)
         delta.sort_values(by="playcount_diff", ascending=False, inplace=True)
+
+        # Send tweet
+        logger.info("create tweet")
+        t = self.create_tweet(delta)
+        tweet_url = f"https://twitter.com/{t.get('user').get('screen_name')}/status/{t.get('id_str')}"
+        logger.info(f"tweeted {tweet_url}")
+
+        # Return tracks for playlist
         return delta[:top_length]["track_id"].to_list()
