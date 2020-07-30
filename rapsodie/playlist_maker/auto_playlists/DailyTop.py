@@ -112,7 +112,7 @@ class DailyTop(AutoPlaylist):
             album.album_type album_type,
             album.artists album_artists,
         FROM
-            rapsodie_main.spotify_track_playcount_last48h AS stream
+            rapsodie_main.spotify_track_playcount_trunc_latest AS stream
         LEFT JOIN
             rapsodie_main.spotify_track_artist_map AS track_artist
         ON
