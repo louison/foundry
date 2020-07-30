@@ -5,7 +5,7 @@ import time
 
 import pandas as pd
 from dotenv import load_dotenv
-from google.cloud import bigquery
+from google.cloud import bigquery, bigquery_storage_v1beta1
 from twitter import Twitter, OAuth
 
 from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
@@ -24,6 +24,7 @@ relevant_columns = [
     "isrc",
     "playcount",
     "playcount_diff",
+    "playcount_diff_percent",
     "artist",
     "artist_id",
     "update_date",
@@ -50,7 +51,7 @@ class DailyTop(AutoPlaylist):
             tweet = f"🤖 Top {top} des sons les plus streamés hier\n"
             for track in l:
                 tweet += f"#{track[0]} {track[1]}, {track[2]} +{track[3]}%\n"
-            tweet += "https://sdz.sh/YwpKZ6"
+            # tweet += "https://sdz.sh/YwpKZ6"
             top -= 1
 
         t = Twitter(
@@ -73,12 +74,18 @@ class DailyTop(AutoPlaylist):
         nb_rows = track_data.shape[0]
         if nb_rows < 2:
             return
-        today = dt.date(2020, 7, 17)
+        today = dt.datetime.today().date()
         ystdy = today - dt.timedelta(days=1)
         bfr_ystdy = today - dt.timedelta(days=2)
         dates = track_data["update_date"].to_list()
         if (ystdy in dates) and (bfr_ystdy in dates):
             track_data["playcount_diff"] = track_data["playcount"].diff(periods=-1)
+            track_data["playcount_diff_percent"] = (
+                track_data["playcount"].diff(periods=-1)
+                / track_data[track_data["update_date"] == bfr_ystdy]["playcount"].iloc[
+                    0
+                ]
+            ) * 100
             # success
             return track_data[relevant_columns].iloc[0]
         return
@@ -105,7 +112,7 @@ class DailyTop(AutoPlaylist):
             album.album_type album_type,
             album.artists album_artists,
         FROM
-            rapsodie_main.spotify_last_stream_rashad_20200717 AS stream
+            rapsodie_main.spotify_track_playcount_last48h AS stream
         LEFT JOIN
             rapsodie_main.spotify_track_artist_map AS track_artist
         ON
@@ -138,7 +145,7 @@ class DailyTop(AutoPlaylist):
             # bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
         end = time.time()
-        logger.debug(f"data fetched in {int(end-start)}s")
+        logger.debug(f"done {round(end-start,2)}s")
 
         # Clean raw data
         logger.info("clean data")
@@ -170,17 +177,18 @@ class DailyTop(AutoPlaylist):
         delta = pd.DataFrame(columns=relevant_columns)
         nb_isrc = data["isrc"].nunique()
         for i, isrc in enumerate(data["isrc"].unique()):
-            # if i % 100 == 0:
-            #     logger.info(f"computing delta {i}/{nb_isrc}")
+            if i % 500 == 0:
+                logger.debug(f"computing delta {i}/{nb_isrc}")
             delta = delta.append(self.compute_playcount_diff(data, isrc))
         end = time.time()
-        logger.info(f"done with duration: {round(end-start,2)}s")
+        logger.info(f"done: {round(end-start,2)}s")
         delta.drop_duplicates(subset=["track_id", "track"], keep="first", inplace=True)
-        delta.sort_values(by="playcount_diff", ascending=False, inplace=True)
+        delta.sort_values(by="playcount_diff_percent", ascending=False, inplace=True)
+        logger.debug(delta[:50])
 
         # Send tweet
         logger.info("create tweet")
-        t = self.create_tweet(delta)
+        # t = self.create_tweet(delta)
         tweet_url = f"https://twitter.com/{t.get('user').get('screen_name')}/status/{t.get('id_str')}"
         logger.info(f"tweeted {tweet_url}")
 
