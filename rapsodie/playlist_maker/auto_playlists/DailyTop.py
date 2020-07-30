@@ -5,7 +5,7 @@ import time
 
 import pandas as pd
 from dotenv import load_dotenv
-from google.cloud import bigquery, bigquery_storage_v1beta1
+from google.cloud import bigquery
 from twitter import Twitter, OAuth
 
 from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
@@ -141,8 +141,7 @@ class DailyTop(AutoPlaylist):
                 "./sandox_creds.json"
             )
         else:
-            logger.debug("SUCE")
-            # bq_client = bigquery.Client()
+            bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
         end = time.time()
         logger.debug(f"done {round(end-start,2)}s")
@@ -150,9 +149,9 @@ class DailyTop(AutoPlaylist):
         # Clean raw data
         logger.info("clean data")
         data.dropna(subset=["artist_id", "last_updated"], inplace=True)
-        data.drop_duplicates(subset=["last_updated"], inplace=True)
         data = data[data["album_type"] != "compilation"]
         data = data[data["album_type"] != "single"]
+        data.drop_duplicates(subset=["last_updated"], inplace=True)
         data["update_date"] = data.apply(lambda x: x["last_updated"].date(), axis=1)
         data["primary_album_artist_id"] = data.apply(
             lambda x: x["album_artists"][0], axis=1
@@ -162,10 +161,10 @@ class DailyTop(AutoPlaylist):
         data = data[data["artist_id"] != "55Aa2cqylxrFIXC767Z865"]  # Lil Wayne
         data = data[data["artist_id"] != "3nFkdlSjzX9mRTtwJOzDYB"]  # Jay-Z
         data = data[data["artist_id"] != "5j4HeCoUlzhfWtjAfM1acR"]  # Stroame
+        data = data[data["artist_id"] != "1KQJOTeIMbixtnSWY4sYs2"]  # Paky IT
         data = data[
             ~data["primary_album_artist_id"].isin(["0LyfQWJT6nXafLPZqxe9Of"])
         ]  # Various artists for f*cking compliations
-        data = data[data["artist_id"] != "1KQJOTeIMbixtnSWY4sYs2"]  # Paky IT
 
         data.sort_values(
             by=["track_id", "last_updated"], ascending=False, inplace=True
@@ -184,11 +183,10 @@ class DailyTop(AutoPlaylist):
         logger.info(f"done: {round(end-start,2)}s")
         delta.drop_duplicates(subset=["track_id", "track"], keep="first", inplace=True)
         delta.sort_values(by="playcount_diff_percent", ascending=False, inplace=True)
-        logger.debug(delta[:50])
 
         # Send tweet
         logger.info("create tweet")
-        # t = self.create_tweet(delta)
+        t = self.create_tweet(delta)
         tweet_url = f"https://twitter.com/{t.get('user').get('screen_name')}/status/{t.get('id_str')}"
         logger.info(f"tweeted {tweet_url}")
 
