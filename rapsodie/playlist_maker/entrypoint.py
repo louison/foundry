@@ -8,6 +8,7 @@ import spotipy
 from rapsodie.playlist_maker.auto_playlists import Diggers, RandomTracks
 from rapsodie.playlist_maker.User import User
 from rapsodie.playlist_maker.auto_playlists.AllArtists import AllArtists
+from rapsodie.playlist_maker.auto_playlists.LatestReleases import LatestReleases
 from rapsodie.playlist_maker.utils import chunks
 
 logging.basicConfig()
@@ -25,7 +26,8 @@ AUTO_PLAYLIST = {
     "generic": None,
     "random": RandomTracks,
     "diggers": Diggers,
-    "allartists": AllArtists
+    "allartists": AllArtists,
+    'latestreleases': LatestReleases
 }
 
 
