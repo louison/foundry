@@ -58,7 +58,6 @@ order by playcount desc;
 
 
         """
-        print(query)
         bq_client = bigquery.Client()
         rows = bq_client.query(query).result()
         tracks = [row[0] for row in rows]
