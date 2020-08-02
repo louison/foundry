@@ -36,50 +36,54 @@ class Diggers(AutoPlaylist):
         blacklisted = '\', \''.join(blacklisted)
 
         query = f"""
-        -- Select latest track statistics (playcount, popularity)
+       -- Select latest track statistics (playcount, popularity)
         -- Remove tracks issued on compilation
         -- group by isrc to avoid track duplicates
         with tracks as (
-        select isrc,
-        array_agg(struct(a.album_id, playcount, a.popularity, a.track_id, sa.type, sa.release_date) order by a.popularity DESC)[safe_offset(0)] as t_data,
-        from
-        (
-        select * , row_number() over(partition by track_id,album_id order by last_updated DESC) as rn
-        from `rapsodie.rapsodie_main.spotify_track_playcount_trunc_latest`
-        ) a
-        left join `rapsodie.rapsodie_main.spotify_track` as st on st.id = a.track_id
-        left join `rapsodie.rapsodie_main.spotify_album` as sa on sa.id = a.album_id
-        where sa.type not like 'compilation'
-        and rn=1 
-        and isrc is not null
-        group by isrc
+            select isrc,
+                   array_agg(struct(a.album_id, playcount, a.popularity, a.track_id, sa.type, sa.release_date)
+                             order by a.popularity DESC)[safe_offset(0)] as t_data,
+            from (
+                     select *, row_number() over (partition by track_id,album_id order by last_updated DESC) as rn
+                     from ` rapsodie.rapsodie_main.spotify_track_playcount_trunc_latest `
+                 ) a
+                     left join ` rapsodie.rapsodie_main.spotify_track ` as st
+            on st.id = a.track_id
+                left join ` rapsodie.rapsodie_main.spotify_album ` as sa on sa.id = a.album_id
+            where sa.type not like 'compilation'
+              and rn=1
+              and isrc is not null
+            group by isrc
         )
-        select
-        tracks.isrc,
-        tracks.t_data.album_id as album_id,
-        tracks.t_data.playcount as playcount,
-        tracks.t_data.popularity as popularity,
-        tracks.t_data.track_id as track_id,
-        tracks.t_data.release_date as release_date,
-        stam.artist_id, 
-        is_primary, 
-        ac.followers, 
-        ac.monthly_listeners 
+        select tracks.isrc,
+               tracks.t_data.album_id     as album_id,
+               tracks.t_data.playcount    as playcount,
+               tracks.t_data.popularity   as popularity,
+               tracks.t_data.track_id     as track_id,
+               tracks.t_data.release_date as release_date,
+               stam.artist_id,
+               is_primary,
+               ac.followers,
+               ac.monthly_listeners
         from tracks
-        left join `rapsodie.rapsodie_main.spotify_track_artist_map` as stam on stam.track_id = tracks.t_data.track_id
-        -- select latest statistics for artists (followers + monthly listeners)
-        left join(select artist_id, followers, monthly_listeners
-        from
-        (
-        select * , row_number() over(partition by artist_id order by last_updated DESC) as rn
-        from `rapsodie.rapsodie_main.artist_creatorabout` 
-        ) where rn =1  ) as ac on ac.artist_id = stam.artist_id
+                 left join ` rapsodie.rapsodie_main.spotify_track_artist_map ` as stam
+        on stam.track_id = tracks.t_data.track_id
+            -- select latest statistics for artists (followers + monthly listeners)
+            left join (select artist_id, followers, monthly_listeners
+            from
+            (
+            select * , row_number() over (partition by artist_id order by last_updated DESC) as rn
+            from ` rapsodie.rapsodie_main.artist_creatorabout `
+            ) where rn =1 ) as ac on ac.artist_id = stam.artist_id
         where ac.artist_id is not null
-        and
-        is_primary = true -- select the track only if the artist is primary on it
-        and followers < {max_followers} -- select only tracks with an artist < X followers (currently)
-        and  DATE_DIFF(CURRENT_DATE(), t_data.release_date, DAY) <= {max_timeframe} -- select only tracks released withing max_timeframe days
-        and  stam.artist_id not in ('{blacklisted}') -- select only tracks where the artist is not black listed
+          and
+            is_primary = true         -- select the track only if the artist is primary on it
+          and followers
+            < {max_followers}         -- select only tracks with an artist < X followers (currently)
+          and DATE_DIFF(CURRENT_DATE ()
+            , t_data.release_date
+            , DAY) <= {max_timeframe} -- select only tracks released withing max_timeframe days
+          and stam.artist_id not in ('{blacklisted}') -- select only tracks where the artist is not black listed
         """
 
         logger.info("Fetching data in database...")
