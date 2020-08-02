@@ -1,5 +1,5 @@
 import argparse
-from rapsodie.playlist_maker import User
+from playlist_maker import User
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

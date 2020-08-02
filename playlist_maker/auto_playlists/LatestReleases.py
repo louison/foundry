@@ -5,8 +5,8 @@ import requests
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
-from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
-from rapsodie.playlist_maker.token import get_token
+from playlist_maker.auto_playlists import AutoPlaylist
+from playlist_maker.token import get_token
 
 load_dotenv()  # regular get env does not work
 

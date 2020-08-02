@@ -1,0 +1,5 @@
+from playlist_maker.auto_playlists.AutoPlaylist import AutoPlaylist
+from playlist_maker.auto_playlists.AllArtists import AllArtists
+from playlist_maker.auto_playlists.Diggers import Diggers
+from playlist_maker.auto_playlists.LatestReleases import LatestReleases
+from playlist_maker.auto_playlists.RandomTracks import RandomTracks

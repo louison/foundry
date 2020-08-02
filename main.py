@@ -1,4 +1,4 @@
-from rapsodie.playlist_maker import entrypoint
+from playlist_maker import entrypoint
 
 
 def main(event, context):
