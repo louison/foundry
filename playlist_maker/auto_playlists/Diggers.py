@@ -36,6 +36,9 @@ class Diggers(AutoPlaylist):
         blacklisted = '\', \''.join(blacklisted)
 
         query = f"""
+        -- Select latest track statistics (playcount, popularity)
+        -- Remove tracks issued on compilation
+        -- group by isrc to avoid track duplicates
         with tracks as (
         select isrc,
         array_agg(struct(a.album_id, playcount, a.popularity, a.track_id, sa.type, sa.release_date) order by a.popularity DESC)[safe_offset(0)] as t_data,
@@ -64,7 +67,8 @@ class Diggers(AutoPlaylist):
         ac.monthly_listeners 
         from tracks
         left join `rapsodie.rapsodie_main.spotify_track_artist_map` as stam on stam.track_id = tracks.t_data.track_id
-        left join (select artist_id, followers, monthly_listeners
+        -- select latest statistics for artists (followers + monthly listeners)
+        left join(select artist_id, followers, monthly_listeners
         from
         (
         select * , row_number() over(partition by artist_id order by last_updated DESC) as rn
@@ -72,18 +76,21 @@ class Diggers(AutoPlaylist):
         ) where rn =1  ) as ac on ac.artist_id = stam.artist_id
         where ac.artist_id is not null
         and
-        is_primary = true
-        and followers < {max_followers}
-        and  DATE_DIFF(CURRENT_DATE(), t_data.release_date, DAY) <= {max_timeframe}
-        and  stam.artist_id not in ('{blacklisted}')
+        is_primary = true -- select the track only if the artist is primary on it
+        and followers < {max_followers} -- select only tracks with an artist < X followers (currently)
+        and  DATE_DIFF(CURRENT_DATE(), t_data.release_date, DAY) <= {max_timeframe} -- select only tracks released withing max_timeframe days
+        and  stam.artist_id not in ('{blacklisted}') -- select only tracks where the artist is not black listed
         """
 
         logger.info("Fetching data in database...")
         client = bigquery.Client()
         df = client.query(query).to_dataframe()
+        # Sort tracks by most recent release and the by playcount
         df = df.sort_values(['release_date', 'playcount'],
                             ascending=[False, False])
+        # Group all tracks by artist_id an keep the first one (the most recent one and the most streamed)
         df = df.groupby(['artist_id']).first().reset_index()
+        # Order results by monthely_listeners and number of followers
         df = df.sort_values(['monthly_listeners', 'followers'],
                             ascending=[False, False])
         logger.info("Done!")
