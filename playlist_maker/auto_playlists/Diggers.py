@@ -45,11 +45,11 @@ class Diggers(AutoPlaylist):
                              order by a.popularity DESC)[safe_offset(0)] as t_data,
             from (
                      select *, row_number() over (partition by track_id,album_id order by last_updated DESC) as rn
-                     from ` rapsodie.rapsodie_main.spotify_track_playcount_trunc_latest `
+                     from rapsodie.rapsodie_main.spotify_track_playcount_trunc_latest
                  ) a
-                     left join ` rapsodie.rapsodie_main.spotify_track ` as st
+                     left join rapsodie.rapsodie_main.spotify_track as st
             on st.id = a.track_id
-                left join ` rapsodie.rapsodie_main.spotify_album ` as sa on sa.id = a.album_id
+                left join rapsodie.rapsodie_main.spotify_album as sa on sa.id = a.album_id
             where sa.type not like 'compilation'
               and rn=1
               and isrc is not null
@@ -66,14 +66,14 @@ class Diggers(AutoPlaylist):
                ac.followers,
                ac.monthly_listeners
         from tracks
-                 left join ` rapsodie.rapsodie_main.spotify_track_artist_map ` as stam
+                 left join rapsodie.rapsodie_main.spotify_track_artist_map as stam
         on stam.track_id = tracks.t_data.track_id
             -- select latest statistics for artists (followers + monthly listeners)
             left join (select artist_id, followers, monthly_listeners
             from
             (
             select * , row_number() over (partition by artist_id order by last_updated DESC) as rn
-            from ` rapsodie.rapsodie_main.artist_creatorabout `
+            from rapsodie.rapsodie_main.artist_creatorabout
             ) where rn =1 ) as ac on ac.artist_id = stam.artist_id
         where ac.artist_id is not null
           and
@@ -90,8 +90,8 @@ class Diggers(AutoPlaylist):
         client = bigquery.Client()
         df = client.query(query).to_dataframe()
         # Sort tracks by most recent release and the by playcount
-        df = df.sort_values(['release_date', 'playcount'],
-                            ascending=[False, False])
+        df = df.sort_values(['popularity', 'playcount', 'release_date'],
+                            ascending=[False, False, False])
         # Group all tracks by artist_id an keep the first one (the most recent one and the most streamed)
         df = df.groupby(['artist_id']).first().reset_index()
         # Order results by monthely_listeners and number of followers
