@@ -19,7 +19,7 @@ logger.setLevel(logging.DEBUG)
 
 
 class Diggers(AutoPlaylist):
-    def get_tracks(self, max_timeframe=30, max_followers=5000):
+    def get_tracks(self, max_timeframe=30, max_followers=5000, only_primary=False):
         """Get small artists latest tracks
 
         Args:
@@ -34,6 +34,9 @@ class Diggers(AutoPlaylist):
         blacklisted = list(map(lambda x: x.spotify_id, blacklisted))
         blacklisted = list(filter(lambda x: x is not None, blacklisted))
         blacklisted = '\', \''.join(blacklisted)
+
+        # Condition to tell whether the small artist must be primary on track
+        oprimary_condition = " and is_primary = true" if only_primary else ''
 
         query = f"""
        -- Select latest track statistics (playcount, popularity)
@@ -76,8 +79,7 @@ class Diggers(AutoPlaylist):
             from rapsodie.rapsodie_main.artist_creatorabout
             ) where rn =1 ) as ac on ac.artist_id = stam.artist_id
         where ac.artist_id is not null
-          and
-            is_primary = true         -- select the track only if the artist is primary on it
+        {oprimary_condition}
           and followers
             < {max_followers}         -- select only tracks with an artist < X followers (currently)
           and DATE_DIFF(CURRENT_DATE ()
