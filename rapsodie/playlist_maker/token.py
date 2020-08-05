@@ -5,16 +5,24 @@ import re
 import requests
 import time
 
+"""
+A helper class to grab a public spotify token from their home page http://open.spotify.com
+"""
+
 TOKEN = None
 TIME = time.time()
 MAIN_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
 
 logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
 def get_token():
+    """
+    Get current cached token or ask for a new one if expired
+    :return: spotify token
+    :rtype: str
+    """
     global TOKEN, TIME
     current_time = time.time()
     if not TOKEN or (current_time - TIME > 500):
@@ -25,12 +33,22 @@ def get_token():
 
 
 def force_token_refresh():
+    """
+    Ask for a new token, never check cache
+    :return: spotify token
+    :rtype: str
+    """
     global TOKEN, TIME
     TOKEN = refresh_token()
     TIME = time.time()
 
 
 def refresh_token():
+    """
+    Fetch token from spotify home page
+    :return: spotify token
+    :rtype: str
+    """
     headers = {
         'User-Agent': MAIN_USER_AGENT
     }
