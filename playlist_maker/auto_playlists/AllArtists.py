@@ -1,12 +1,10 @@
 import logging
 import os
 
-from dotenv import load_dotenv
 from google.cloud import bigquery
 
 from playlist_maker.auto_playlists import AutoPlaylist
 
-load_dotenv()
 
 ENVIRONMENT = os.environ.get("PYTHON_ENV")
 

@@ -1,15 +1,12 @@
 import logging
 import os
-import sys
 
-from dotenv import load_dotenv
 from google.cloud import bigquery
 
-from rapsodie import artistdb
+from rapsodie.platforms.database import Database, Artist
 
 from playlist_maker.auto_playlists import AutoPlaylist
 
-load_dotenv()
 
 ENVIRONMENT = os.environ.get("PYTHON_ENV")
 
@@ -27,8 +24,8 @@ class Diggers(AutoPlaylist):
             max_followers (int, optional): Defaults to 5000.
         """
 
-        database = artistdb.Database()
-        artists = database.session.query(artistdb.Artist).all()
+        database = Database()
+        artists = database.session.query(Artist).all()
 
         blacklisted = list(filter(lambda x: x.is_blacklisted, artists))
         blacklisted = list(map(lambda x: x.spotify_id, blacklisted))
