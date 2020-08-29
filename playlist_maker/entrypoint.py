@@ -5,9 +5,12 @@ import json
 
 import spotipy
 
-from playlist_maker.auto_playlists import Diggers, RandomTracks, LatestReleases
 from playlist_maker.User import User
-from playlist_maker.auto_playlists.AllArtists import AllArtists
+from playlist_maker.auto_playlists import AllArtists
+from playlist_maker.auto_playlists import LatestReleases
+from playlist_maker.auto_playlists import Diggers
+from playlist_maker.auto_playlists import RandomTracks
+from playlist_maker.auto_playlists import BillionStreams
 from playlist_maker.utils import chunks
 
 logging.basicConfig()
@@ -26,7 +29,8 @@ AUTO_PLAYLIST = {
     "random": RandomTracks,
     "diggers": Diggers,
     "allartists": AllArtists,
-    'latestreleases': LatestReleases
+    'latestreleases': LatestReleases,
+    "billionstreams": BillionStreams
 }
 
 

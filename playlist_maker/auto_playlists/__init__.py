@@ -3,3 +3,4 @@ from playlist_maker.auto_playlists.AllArtists import AllArtists
 from playlist_maker.auto_playlists.Diggers import Diggers
 from playlist_maker.auto_playlists.LatestReleases import LatestReleases
 from playlist_maker.auto_playlists.RandomTracks import RandomTracks
+from playlist_maker.auto_playlists.billionstreams.BillionStreams import BillionStreams
