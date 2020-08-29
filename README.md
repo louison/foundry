@@ -30,6 +30,7 @@ source venv/bin/activate
 At the root of the repo run the following commands
 
 ```sh
+export PYTHONENV=local
 export PYTHONPATH=$(pwd)
 export SPOTIFY_CLIENT_ID=e109534e11a24370aec072e3c798d41f
 export SPOTIFY_CLIENT_SECRET=

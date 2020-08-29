@@ -136,5 +136,4 @@ dmypy.json
 /.vscode/
 *-event.json
 /credentials.json
-/rapsodie
-/rapsodieplatforms
+sandox_creds.json

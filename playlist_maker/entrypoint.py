@@ -11,6 +11,7 @@ from playlist_maker.auto_playlists import LatestReleases
 from playlist_maker.auto_playlists import Diggers
 from playlist_maker.auto_playlists import RandomTracks
 from playlist_maker.auto_playlists import BillionStreams
+from playlist_maker.auto_playlists import DailyTop
 from playlist_maker.utils import chunks
 
 logging.basicConfig()
@@ -30,7 +31,8 @@ AUTO_PLAYLIST = {
     "diggers": Diggers,
     "allartists": AllArtists,
     'latestreleases': LatestReleases,
-    "billionstreams": BillionStreams
+    "billionstreams": BillionStreams,
+    "dailytop": DailyTop
 }
 
 
