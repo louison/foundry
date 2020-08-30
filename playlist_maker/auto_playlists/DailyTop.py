@@ -4,11 +4,10 @@ import os
 import time
 
 import pandas as pd
-from google.cloud import bigquery
-from twitter import Twitter, OAuth
+from google.cloud import bigquery, pubsub_v1
+from twitter import OAuth, Twitter
 
-from playlist_maker.auto_playlists import AutoPlaylist
-
+from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
 
 ENVIRONMENT = os.environ.get("PYTHONENV")
 
@@ -49,19 +48,13 @@ class DailyTop(AutoPlaylist):
             tweet = f"🤖 Top {top} des sons les plus streamés hier\n"
             for track in l:
                 tweet += f"#{track[0]} {track[1]}, {track[2]} +{track[3]}%\n"
-            # tweet += "https://sdz.sh/YwpKZ6"
+            tweet += "https://sdz.sh/ftAg2x"
             top -= 1
 
-        t = Twitter(
-            auth=OAuth(
-                "1294658089-fTUOaVJ8V3IKPgQ8pj4g4jSWRc9OxAUot28QD8q",
-                "muFlvClaGqvmeGsn2dhGmWTNaHeMMC6aecaDapIonsoZr",
-                "idwPNaHFvcgtioKmfjvkchZZs",
-                "ZMS1gmPuOrLIfEhOcefiOR0UhkKGFO7aeHDuW42TC7ZhyzGGDn",
-            )
-        )
-        response = t.statuses.update(status=tweet)
-        return response
+        message = {"platforms": ["slack", "twitter"], "body": tweet}
+        notifier_topic = "projects/rapsodie/topics/notifier"
+        publisher = pubsub_v1.PublisherClient()
+        publisher.publish(notifier_topic, json.dumps(message).encode("utf-8"))
 
     def compute_playcount_diff(self, df, isrc):
         track_data = (
@@ -90,7 +83,6 @@ class DailyTop(AutoPlaylist):
 
     def get_tracks(self, top_length=50):
         """Most streams tracks daily
-
         Args:
             top_length (int, optional): How big the ranking is. Defaults to 50.
         """
@@ -106,9 +98,8 @@ class DailyTop(AutoPlaylist):
             stream.playcount playcount,
             stream.last_updated last_updated,
             album.id album_id,
-            album.name album,
-            album.album_type album_type,
-            album.artists album_artists,
+            --   album.name album,
+            TO_JSON_STRING(album.artists) album_artists,
         FROM
             rapsodie_main.spotify_track_playcount_trunc_latest AS stream
         LEFT JOIN
@@ -127,8 +118,27 @@ class DailyTop(AutoPlaylist):
             rapsodie_main.spotify_album AS album
         ON
             album.id = track.album_id
-        ORDER BY
-            stream.last_updated DESC
+        WHERE
+            artist_id != '55Aa2cqylxrFIXC767Z865' -- Lil Wayne
+        AND artist_id != '3nFkdlSjzX9mRTtwJOzDYB' -- Jay-Z
+        AND artist_id != '5j4HeCoUlzhfWtjAfM1acR' -- Stromae
+        AND artist_id != '1KQJOTeIMbixtnSWY4sYs2' -- Stromae
+        AND album.album_type != 'compilation'
+        AND album.album_type != 'single'
+        AND stream.last_updated IS NOT NULL
+        AND '0LyfQWJT6nXafLPZqxe9Of' NOT IN UNNEST(album.artists)
+        AND artist_id IS NOT NULL -- not working :(
+        GROUP BY
+                track,
+                track_id,
+                isrc,
+                artist,
+                artist_id,
+                popularity,
+                playcount,
+                last_updated,
+                album_id,
+                album_artists
         """
 
         # Get Data
@@ -146,27 +156,13 @@ class DailyTop(AutoPlaylist):
 
         # Clean raw data
         logger.info("clean data")
-        data.dropna(subset=["artist_id", "last_updated"], inplace=True)
-        data = data[data["album_type"] != "compilation"]
-        data = data[data["album_type"] != "single"]
         data.drop_duplicates(subset=["last_updated"], inplace=True)
         data["update_date"] = data.apply(lambda x: x["last_updated"].date(), axis=1)
         data["primary_album_artist_id"] = data.apply(
             lambda x: x["album_artists"][0], axis=1
         )
 
-        # Remove bad artists
-        data = data[data["artist_id"] != "55Aa2cqylxrFIXC767Z865"]  # Lil Wayne
-        data = data[data["artist_id"] != "3nFkdlSjzX9mRTtwJOzDYB"]  # Jay-Z
-        data = data[data["artist_id"] != "5j4HeCoUlzhfWtjAfM1acR"]  # Stroame
-        data = data[data["artist_id"] != "1KQJOTeIMbixtnSWY4sYs2"]  # Paky IT
-        data = data[
-            ~data["primary_album_artist_id"].isin(["0LyfQWJT6nXafLPZqxe9Of"])
-        ]  # Various artists for f*cking compliations
-
-        data.sort_values(
-            by=["track_id", "last_updated"], ascending=False, inplace=True
-        )  # keep ?
+        data.sort_values(by=["track_id", "last_updated"], ascending=False, inplace=True)
 
         # Compute playcount delta
         logger.info("compute diff playcount...")
@@ -183,10 +179,8 @@ class DailyTop(AutoPlaylist):
         delta.sort_values(by="playcount_diff_percent", ascending=False, inplace=True)
 
         # Send tweet
-        logger.info("create tweet")
-        t = self.create_tweet(delta)
-        tweet_url = f"https://twitter.com/{t.get('user').get('screen_name')}/status/{t.get('id_str')}"
-        logger.info(f"tweeted {tweet_url}")
+        logger.info("send tweet")
+        self.create_tweet(delta)
 
         # Return tracks for playlist
         return delta[:top_length]["track_id"].to_list()
