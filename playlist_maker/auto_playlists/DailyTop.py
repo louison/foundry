@@ -122,7 +122,7 @@ class DailyTop(AutoPlaylist):
             artist_id != '55Aa2cqylxrFIXC767Z865' -- Lil Wayne
         AND artist_id != '3nFkdlSjzX9mRTtwJOzDYB' -- Jay-Z
         AND artist_id != '5j4HeCoUlzhfWtjAfM1acR' -- Stromae
-        AND artist_id != '1KQJOTeIMbixtnSWY4sYs2' -- Stromae
+        AND artist_id != '1KQJOTeIMbixtnSWY4sYs2' -- Paky IT
         AND album.album_type != 'compilation'
         AND album.album_type != 'single'
         AND stream.last_updated IS NOT NULL
@@ -155,13 +155,12 @@ class DailyTop(AutoPlaylist):
         logger.debug(f"done {round(end-start,2)}s")
 
         # Clean raw data
-        logger.debug(f"df shape {df.shape}")
-        logger.debug(data.memory_usage())
-        logger.debug(f"bytes used: {data.memory_usage(index=True).sum()}")
         logger.info("remove date duplicates")
         data.drop_duplicates(subset=["last_updated"], inplace=True)
+        
         logger.info("convert update date")
         data["update_date"] = data.apply(lambda x: x["last_updated"].date(), axis=1)
+        
         logger.info("get primary artist")
         data["primary_album_artist_id"] = data.apply(
             lambda x: x["album_artists"][0], axis=1
