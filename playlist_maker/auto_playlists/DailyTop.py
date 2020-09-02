@@ -7,7 +7,7 @@ import pandas as pd
 from google.cloud import bigquery, pubsub_v1
 from twitter import OAuth, Twitter
 
-from rapsodie.playlist_maker.auto_playlists import AutoPlaylist
+from playlist_maker.auto_playlists import AutoPlaylist
 
 ENVIRONMENT = os.environ.get("PYTHONENV")
 
@@ -155,13 +155,18 @@ class DailyTop(AutoPlaylist):
         logger.debug(f"done {round(end-start,2)}s")
 
         # Clean raw data
-        logger.info("clean data")
+        logger.debug(f"df shape {df.shape}")
+        logger.debug(data.memory_usage())
+        logger.debug(f"bytes used: {data.memory_usage(index=True).sum()}")
+        logger.info("remove date duplicates")
         data.drop_duplicates(subset=["last_updated"], inplace=True)
+        logger.info("convert update date")
         data["update_date"] = data.apply(lambda x: x["last_updated"].date(), axis=1)
+        logger.info("get primary artist")
         data["primary_album_artist_id"] = data.apply(
             lambda x: x["album_artists"][0], axis=1
         )
-
+        logger.info("sort")
         data.sort_values(by=["track_id", "last_updated"], ascending=False, inplace=True)
 
         # Compute playcount delta
