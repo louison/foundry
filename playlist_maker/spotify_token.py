@@ -6,6 +6,7 @@ import requests
 import time
 
 """
+
 A helper class to grab a public spotify token from their home page http://open.spotify.com
 """
 
