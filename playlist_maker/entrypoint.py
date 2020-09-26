@@ -83,40 +83,6 @@ def generic(message=None):
     user.connect()
     user.fetch()
 
-    # if playlist_name:
-    #     playlists = user.get_playlists()
-    #     names = list(map(lambda x: x["name"], playlists))
-    #     if playlist_name in names:
-    #         push_method = message.get("push_method")
-    #         if push_method not in PUSH_METHODS:
-    #             raise ValueError(f"push method: {push_method} not supported")
-    #         if message.get("override", False):
-    #             playlist_object = list(
-    #                 filter(lambda x: x["name"] == playlist_name, playlists)
-    #             )[0]
-    #             if push_method == "append":
-    #                 tracks = user.get_playlist_tracks(playlist_object["id"])
-    #                 tracks_ids = list(map(lambda x: x["track"]["id"], tracks))
-    #                 message["tracks"].extend(tracks_ids)
-    #             elif push_method == "keep":
-    #                 tracks = user.get_playlist_tracks(playlist_object["id"])
-    #                 tracks_ids = list(map(lambda x: x["track"]["id"], tracks))
-    #                 message["tracks"] = tracks_ids
-    #         else:
-    #             raise ValueError(
-    #                 f"Playlist with name: {playlist_name}"
-    #                 f" already exist for user {message['username']} use -o to override"
-    #             )
-    #     else:
-    #         playlist_object = client.user_playlist_create(
-    #             user.username,
-    #             playlist_name,
-    #             public=message.get("public", False),
-    #             description=message.get("description", ""),
-    #         )
-    # else:
-    #     playlist_object = client.playlist(message["playlist_id"])
-
     if message.get("playlist_id"):
         playlist_object = client.playlist(
             message["playlist_id"]
