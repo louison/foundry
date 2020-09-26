@@ -117,8 +117,19 @@ def generic(message=None):
     # else:
     #     playlist_object = client.playlist(message["playlist_id"])
 
-    playlist_object = client.playlist(message["playlist_id"])  # select playlist by id
+    if message.get("playlist_id"):
+        playlist_object = client.playlist(
+            message["playlist_id"]
+        )  # select playlist by id
+    else:
+        playlist_object = client.user_playlist_create(
+            user=user.username,
+            name=message["playlist_name"],
+            description=message.get("playlist_description", ""),
+            public=message.get("public", False),
+        )
     # create new playlist ?
+
     if not message.get("override", True):
         push_method = message.get("push_method")
         if push_method not in PUSH_METHODS:
@@ -142,7 +153,7 @@ def generic(message=None):
         user=message["username"],
         playlist_id=playlist_object["id"],
         name=message["playlist_name"],
-        description=message["playlist_description"],
+        description=message.get("playlist_description", ""),
         public=message.get("public", False),
     )
     os.remove(credentials_path)
