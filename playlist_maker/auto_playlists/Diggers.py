@@ -102,14 +102,11 @@ class Diggers(AutoPlaylist):
         logger.info("Done!")
         return list(df["track_id"].head(50))
 
-    def get_metadata(self):
+    def get_metadata(self, message):
         metadata = {}
         edition = str(int((dt.datetime.today().date() - LAUNCH).days / 7))
 
-        name = f"Jeunes Pousses #{edition}"
-        metadata["playlist_name"] = name
-
-        description = f"Edition #{edition} des dernières pépites détectées par le radar Rapsodie."
-        metadata["playlist_description"] = description
+        metadata["playlist_name"] = message["playlist_name"] + edition
+        metadata["playlist_description"] = message["description"].replace("$", edition)
 
         return metadata

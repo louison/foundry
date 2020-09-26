@@ -50,11 +50,12 @@ def start(event, context):
         if auto_playlist_class:
             auto_playlist = auto_playlist_class()
             args = message.get("entrypoint_args", {})
+            if "get_metadata" in dir(auto_playlist):
+                metadata = auto_playlist.get_metadata(message)
+                message["playlist_name"] = metadata["playlist_name"]
+                message["playlist_description"] = metadata["playlist_description"]
             tracks = auto_playlist.get_tracks(**args)
             message["tracks"] = tracks
-            metadata = auto_playlist.get_metadata()
-            message["playlist_name"] = metadata["playlist_name"]
-            message["playlist_description"] = metadata["playlist_description"]
         return generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
@@ -116,9 +117,18 @@ def generic(message=None):
     # else:
     #     playlist_object = client.playlist(message["playlist_id"])
 
-    playlist_object = client.playlist(
-        message["playlist_id"]
-    )  # select playlist by id only
+    playlist_object = client.playlist(message["playlist_id"])  # select playlist by id
+    # create new playlist ?
+    if not message.get("override", True):
+        push_method = message.get("push_method")
+        if push_method not in PUSH_METHODS:
+            raise ValueError(f"push method: {push_method} not supported")
+        tracks = user.get_playlist_tracks(playlist_object["id"])
+        tracks_ids = list(map(lambda x: x["track"]["id"], tracks))
+        if push_method == "append":
+            message["tracks"].extend(tracks_ids)
+        elif push_method == "keep":
+            message["tracks"] = tracks_ids
     track_chunks = chunks(message["tracks"], 100)
     # First empty the playlist
     client.user_playlist_replace_tracks(user.username, playlist_object["id"], tracks=[])

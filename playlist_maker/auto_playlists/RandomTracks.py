@@ -35,14 +35,14 @@ class RandomTracks(AutoPlaylist):
         tracks = [row[0] for row in rows]
         return tracks
 
-    def get_metadata(self):
+    def get_metadata(self, message):
         metadata = {}
         rand = str(random.randint(1, 300))
 
-        name = f"Diiiiggers #{rand}"
+        name = f"Test #{rand}"
         metadata["playlist_name"] = name
 
-        description = f"salut les copains c'est la semaine #{rand}"
+        description = f"test #{rand}"
         metadata["playlist_description"] = description
 
         return metadata
