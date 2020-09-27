@@ -3,3 +3,4 @@
 # Except this file
 !.gitignore
 !user-entrypoint-event-model.json
+# !rapsodie-*

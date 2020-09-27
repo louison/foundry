@@ -75,7 +75,6 @@ def generic(message=None):
         client_id=spotify_client_id,
         client_secret=spotify_client_secret,
         redirect_uri=spotify_redirect_uri,
-        # cache_path=".spotify_cache",
         cache_path=credentials_path,
     )
     client = spotipy.Spotify(client_credentials_manager=creds)
@@ -83,18 +82,16 @@ def generic(message=None):
     user.connect()
     user.fetch()
 
+    # Select the playlist by id
     if message.get("playlist_id"):
-        playlist_object = client.playlist(
-            message["playlist_id"]
-        )  # select playlist by id
-    else:
+        playlist_object = client.playlist(message["playlist_id"])
+    else:  # If no id create a new playlist
         playlist_object = client.user_playlist_create(
             user=user.username,
             name=message["playlist_name"],
             description=message.get("playlist_description", ""),
             public=message.get("public", False),
         )
-    # create new playlist ?
 
     if not message.get("override", True):
         push_method = message.get("push_method")
@@ -107,8 +104,12 @@ def generic(message=None):
         elif push_method == "keep":
             message["tracks"] = tracks_ids
     track_chunks = chunks(message["tracks"], 100)
+
     # First empty the playlist
-    client.user_playlist_replace_tracks(user.username, playlist_object["id"], tracks=[])
+    client.user_playlist_replace_tracks(
+        user=user.username, playlist_id=playlist_object["id"], tracks=[]
+    )
+
     # Then append new tracks by batch of 100
     for chunk in track_chunks:
         client.user_playlist_add_tracks(
