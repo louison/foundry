@@ -29,7 +29,7 @@ relevant_columns = [
 
 
 class DailyTop(AutoPlaylist):
-    def create_tweet(df, top=5):
+    def create_tweet(self, df, top=5):
         # TODO: use twitter handles of rappers we have
         tweet = ""
         while len(tweet) > 280 or not tweet:
@@ -51,21 +51,21 @@ class DailyTop(AutoPlaylist):
             tweet += "https://sdz.sh/ftAg2x"
             top -= 1
 
-        print(tweet)
+        logger.debug(tweet)
         message = {"platforms": ["slack", "twitter"], "body": tweet}
         notifier_topic = "projects/rapsodie/topics/notifier"
-        publisher = pubsub_v1.PublisherClient()
-        publisher.publish(notifier_topic, json.dumps(message).encode("utf-8"))
+        # publisher = pubsub_v1.PublisherClient()
+        # publisher.publish(notifier_topic, json.dumps(message).encode("utf-8"))
 
-    def get_tracks(self, top_length=50):
+    def get_tracks(self, top_length=50, top_timeframe=7):
         """Most streams tracks daily
         Args:
             top_length (int, optional): How big the ranking is. Defaults to 50.
         """
 
-        daily_top_query = """
+        daily_top_query = f"""
         SELECT
-            STRING_AGG(DISTINCT track.id) track_id,
+            ARRAY_AGG(DISTINCT track.id)[OFFSET(0)] track_id,
             --track.id track_id,
             track.name track_name,
             ARRAY_AGG(DISTINCT artist.name) artist_name,
@@ -91,7 +91,7 @@ class DailyTop(AutoPlaylist):
             artist.id = track_artist.artist_id
         WHERE
             timeframe_ends = CURRENT_DATE() - 1
-        AND timeframe_length = 3
+        AND timeframe_length = {top_timeframe}
         GROUP BY
             isrc,
             track.name,
@@ -113,12 +113,9 @@ class DailyTop(AutoPlaylist):
             bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
-        # Clean raw data
-        logger.info("remove date duplicates")
-
         # Send tweet
         logger.info("send tweet")
         self.create_tweet(data)
 
         # Return tracks for playlist
-        return delta[:top_length]["track_id"].to_list()
+        return data[:top_length]["track_id"].to_list()
