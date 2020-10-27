@@ -105,17 +105,14 @@ class DailyTop(AutoPlaylist):
 
         # Get Data
         logger.info("fetch data from bigquery")
-        if ENVIRONMENT == "local":
-            bq_client = bigquery.Client().from_service_account_json(
-                "./sandox_creds.json"
-            )
-        else:
-            bq_client = bigquery.Client()
+        bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
+        
         # Send tweet
-        logger.info("send tweet")
-        self.create_tweet(data)
+        # logger.info("send tweet")
+        # self.create_tweet(data)
+        message = data.head(50).to_json("message.json", orient="records")
 
         # Return tracks for playlist
         return data[:top_length]["track_id"].to_list()
