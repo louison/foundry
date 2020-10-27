@@ -137,3 +137,4 @@ dmypy.json
 *-event.json
 /credentials.json
 sandox_creds.json
+message.json
