@@ -105,8 +105,8 @@ class DailyTop(AutoPlaylist):
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
         # Send tweet
-        logger.info("send tweet")
-        self.create_tweet(data)
+        # logger.info("send tweet")
+        # self.create_tweet(data)
 
         # Return tracks for playlist
         return data[:top_length]["track_id"].to_list()
