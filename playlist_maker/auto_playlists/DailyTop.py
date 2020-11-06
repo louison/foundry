@@ -9,8 +9,6 @@ from twitter import OAuth, Twitter
 
 from playlist_maker.auto_playlists import AutoPlaylist
 
-ENVIRONMENT = os.environ.get("PYTHONENV")
-
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -105,12 +103,7 @@ class DailyTop(AutoPlaylist):
 
         # Get Data
         logger.info("fetch data from bigquery")
-        if ENVIRONMENT == "local":
-            bq_client = bigquery.Client().from_service_account_json(
-                "./sandox_creds.json"
-            )
-        else:
-            bq_client = bigquery.Client()
+        bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
         # Send tweet
