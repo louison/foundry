@@ -9,9 +9,7 @@ from twitter import OAuth, Twitter
 
 from playlist_maker.auto_playlists import AutoPlaylist
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 relevant_columns = [
     "track",
