@@ -30,7 +30,7 @@ relevant_columns = [
 
 
 class DailyTop(AutoPlaylist):
-    def get_tracks(self, top_length=50, top_timeframe=7):
+    def get_tracks(self, top_length=50, top_timeframe=1):
         """Most streams tracks daily
         Args:
             top_length (int, optional): How big the ranking is. Defaults to 50.
@@ -82,11 +82,9 @@ class DailyTop(AutoPlaylist):
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
         # Send info to announcer
-        # message = data.head(50).to_json("message.json", orient="records")
         logger.info("sending message to announcer")
         message_data = data.head(50).to_json(orient="records")
         message = {"entrypoint": "dailytop", "entrypoint_args": {"data": json.loads(message_data)}}
-        # logger.debug(message)
         publisher = pubsub_v1.PublisherClient()
         publisher.publish(ANNOUNCER_TOPIC, json.dumps(message).encode("utf-8"))
 
