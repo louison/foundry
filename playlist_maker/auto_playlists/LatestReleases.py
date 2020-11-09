@@ -5,7 +5,7 @@ import requests
 from google.cloud import bigquery
 
 from playlist_maker.auto_playlists import AutoPlaylist
-from playlist_maker.token import get_token
+from playlist_maker.tokenito import get_token
 
 ENVIRONMENT = os.environ.get("PYTHON_ENV")
 

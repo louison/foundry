@@ -61,7 +61,9 @@ class DailyTop(AutoPlaylist):
 
         daily_top_query = f"""
         SELECT
-            ARRAY_AGG(DISTINCT track.id)[OFFSET(0)] track_id,
+            ARRAY_AGG(DISTINCT track.id)[
+        OFFSET
+            (0)] track_id,
             --track.id track_id,
             track.name track_name,
             ARRAY_AGG(DISTINCT artist.name) artist_name,
@@ -87,7 +89,7 @@ class DailyTop(AutoPlaylist):
             artist.id = track_artist.artist_id
         WHERE
             timeframe_ends = CURRENT_DATE() - 1
-        AND timeframe_length = {top_timeframe}
+            AND timeframe_length = 7
         GROUP BY
             isrc,
             track.name,
@@ -95,8 +97,10 @@ class DailyTop(AutoPlaylist):
             stream_evolution.playcount,
             stream_evolution.timeframe_ends,
             stream_evolution.timeframe_length
-        ORDER BY
+            ORDER BY
             pct DESC
+        LIMIT
+            {top_length}
         """
 
         # Get Data
@@ -109,4 +113,4 @@ class DailyTop(AutoPlaylist):
         # self.create_tweet(data)
 
         # Return tracks for playlist
-        return data[:top_length]["track_id"].to_list()
+        return data["track_id"].to_list()
