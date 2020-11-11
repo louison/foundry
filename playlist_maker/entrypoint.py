@@ -66,7 +66,7 @@ def generic(message=None):
     publisher = pubsub_v1.PublisherClient()
     # Announce playlist update
     playlist_update_message = {
-        "entrypoint": "playlist_update",
+        "entrypoint": "playlistupdate",
         "platforms": ["slack"],
         "entrypoint_args": {"playlist_entrypoint": message["entrypoint"]},
     }
