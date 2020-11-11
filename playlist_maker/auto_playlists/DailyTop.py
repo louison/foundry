@@ -29,9 +29,18 @@ relevant_columns = [
 
 class DailyTop(AutoPlaylist):
     def get_tracks(self, top_length=50, top_timeframe=7):
-        """Most streams tracks daily
+        """Most streams tracks
+
         Args:
-            top_length (int, optional): How big the ranking is. Defaults to 50.
+            top_length (int, optional): How many tracks in the playlist. Defaults to 50.
+            top_timeframe (int, optional): Timeframe to compute top. Defaults to 7.
+
+        Raises:
+            ValueError: If data is missing from source
+
+        Returns:
+            dict: "tracks" key contains spotify id lists of tracks to send
+                  "announce" key contains json to send to announcer (akha)
         """
 
         daily_top_query = f"""
@@ -86,17 +95,12 @@ class DailyTop(AutoPlaylist):
         if data.empty:
             raise ValueError("DailyTop got empty dataframe from BigQuery!")
 
-        # Send announce
-        logger.info("sending message to announcer")
-        message_data = data.head(top_length).to_json(orient="records")
-        message = {
+        # Build announce message
+        announce_data = data.head(top_length).to_json(orient="records")
+        announce = {
             "entrypoint": "dailytop",
             "platforms": ["slack"],
-            "entrypoint_args": {"data": json.loads(message_data)},
+            "entrypoint_args": {"data": json.loads(announce_data)},
         }
-        publisher = pubsub_v1.PublisherClient()
-        publisher.publish(ANNOUNCER_TOPIC, json.dumps(message).encode("utf-8"))
 
-        # Return tracks for playlist
-        logger.info("return tracklist to foundry")
-        return data["track_id"].to_list()
+        return {"tracks": data["track_id"].to_list(), "announce": announce}
