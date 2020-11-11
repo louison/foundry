@@ -1,21 +1,21 @@
 steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-  - functions
-  - deploy
-  - ${_FUNCTION_NAME}
-  - --allow-unauthenticated
-  - --entry-point 
-  - main
-  - --runtime
-  - python38
-  - --trigger-resource
-  - ${_PUBSUB_TOPIC}
-  - --trigger-event
-  - google.pubsub.topic.publish
-  - --service-account
-  - playlist-maker@rapsodie.iam.gserviceaccount.com
-  - --region 
-  - europe-west1
-  - --verbosity
-  - info
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - functions
+      - deploy
+      - ${_FUNCTION_NAME}
+      - --allow-unauthenticated
+      - --entry-point
+      - main
+      - --runtime
+      - python38
+      - --trigger-resource
+      - ${_PUBSUB_TOPIC}
+      - --trigger-event
+      - google.pubsub.topic.publish
+      - --service-account
+      - playlist-maker@rapsodie.iam.gserviceaccount.com
+      - --region
+      - europe-west1
+      - --verbosity
+      - info
