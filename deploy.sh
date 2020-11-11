@@ -21,7 +21,6 @@ gcloud functions deploy $gcf \
     --trigger-resource $topic \
     --trigger-event google.pubsub.topic.publish \
     --service-account playlist-maker@rapsodie.iam.gserviceaccount.com \
-    --timeout 540s \
     --region europe-west1 \
     --verbosity info \
     --env-vars-file .env.yaml
