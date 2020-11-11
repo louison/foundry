@@ -20,4 +20,3 @@ steps:
   - europe-west1
   - --verbosity
   - info
-  - --env-vars-file .env.yaml
