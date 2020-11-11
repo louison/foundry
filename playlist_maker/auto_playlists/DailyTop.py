@@ -1,13 +1,16 @@
 import datetime as dt
+import json
 import logging
 import os
 import time
 
 import pandas as pd
 from google.cloud import bigquery, pubsub_v1
+from playlist_maker.auto_playlists import AutoPlaylist
 from twitter import OAuth, Twitter
 
-from playlist_maker.auto_playlists import AutoPlaylist
+# ANNOUNCER_TOPIC = "projects/rapsodie/topics/announcer"  # TODO: pass to env var
+ANNOUNCER_TOPIC = os.environ.get("ANNOUNCER_TOPIC")
 
 logger = logging.getLogger(__name__)
 
@@ -25,34 +28,6 @@ relevant_columns = [
 
 
 class DailyTop(AutoPlaylist):
-    def create_tweet(self, df, top=5):
-        # TODO: use twitter handles of rappers we have
-        tweet = ""
-        while len(tweet) > 280 or not tweet:
-            i = 1
-            l = []
-            for index, row in df[:top].iterrows():
-                l.append(
-                    (
-                        i,
-                        row["track_name"],
-                        " ".join(row["artist_name"]),
-                        round(row["pct"] * 100, 2),
-                    )
-                )
-                i += 1
-            tweet = f"🤖 Top {top} des sons les plus streamés cette semaine\n"
-            for track in l:
-                tweet += f"#{track[0]} {track[1]}, {track[2]} +{track[3]}%\n"
-            tweet += "https://sdz.sh/ftAg2x"
-            top -= 1
-
-        logger.debug(tweet)
-        message = {"platforms": ["slack", "twitter"], "body": tweet}
-        notifier_topic = "projects/rapsodie/topics/notifier"
-        # publisher = pubsub_v1.PublisherClient()
-        # publisher.publish(notifier_topic, json.dumps(message).encode("utf-8"))
-
     def get_tracks(self, top_length=50, top_timeframe=7):
         """Most streams tracks daily
         Args:
@@ -88,7 +63,7 @@ class DailyTop(AutoPlaylist):
         ON
             artist.id = track_artist.artist_id
         WHERE
-            timeframe_ends = CURRENT_DATE() - 1
+            timeframe_ends = CURRENT_DATE() - 3
             AND timeframe_length = 7
         GROUP BY
             isrc,
@@ -108,9 +83,20 @@ class DailyTop(AutoPlaylist):
         bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
-        # Send tweet
-        # logger.info("send tweet")
-        # self.create_tweet(data)
+        if data.empty:
+            raise ValueError("DailyTop got empty dataframe from BigQuery!")
+
+        # Send announce
+        logger.info("sending message to announcer")
+        message_data = data.head(top_length).to_json(orient="records")
+        message = {
+            "entrypoint": "dailytop",
+            "platforms": ["slack"],
+            "entrypoint_args": {"data": json.loads(message_data)},
+        }
+        publisher = pubsub_v1.PublisherClient()
+        publisher.publish(ANNOUNCER_TOPIC, json.dumps(message).encode("utf-8"))
 
         # Return tracks for playlist
+        logger.info("return tracklist to foundry")
         return data["track_id"].to_list()
