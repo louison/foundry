@@ -4,7 +4,6 @@ steps:
       - functions
       - deploy
       - ${_FUNCTION_NAME}
-      - source=.
       - --allow-unauthenticated
       - --entry-point=main
       - --runtime=python38
