@@ -158,3 +158,6 @@ Remember that the trigger is how the playlist will be updated. Google Cloud Sche
 8. write `playlists_update` as topic (it already exists and Foundry is listening there)
 
 9. the payload is the production version of your custom event. basically you update the information to make it match Rapsodie account (username, playlistname, and credentials)
+
+# Dev process
+Create all your PR intro `debug` branch to test new features. Then merge into `master`branch.
