@@ -12,8 +12,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class RandomTracks(AutoPlaylist):
 
+class RandomTracks(AutoPlaylist):
     def get_tracks(self):
         """Core playlist logic. Gather tracks you want here
 
@@ -31,13 +31,7 @@ class RandomTracks(AutoPlaylist):
         LIMIT
             10
         """
-        if ENVIRONMENT == "local":
-            bq_client = bigquery.Client().from_service_account_json(
-                "./utils/rapsodie-21e551b04683.json"
-            )
-        else:
-            bq_client = bigquery.Client()
+        bq_client = bigquery.Client()
         rows = bq_client.query(query).result()
         tracks = [row[0] for row in rows]
-        return tracks
-
+        return {"tracks": tracks}

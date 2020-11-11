@@ -9,9 +9,6 @@ from google.cloud import bigquery, pubsub_v1
 from playlist_maker.auto_playlists import AutoPlaylist
 from twitter import OAuth, Twitter
 
-# ANNOUNCER_TOPIC = "projects/rapsodie/topics/announcer"  # TODO: pass to env var
-ANNOUNCER_TOPIC = os.environ.get("ANNOUNCER_TOPIC")
-
 logger = logging.getLogger(__name__)
 
 relevant_columns = [
