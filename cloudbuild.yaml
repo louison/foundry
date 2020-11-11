@@ -4,18 +4,12 @@ steps:
       - functions
       - deploy
       - ${_FUNCTION_NAME}
+      - source=.
       - --allow-unauthenticated
-      - --entry-point
-      - main
-      - --runtime
-      - python38
-      - --trigger-resource
-      - ${_PUBSUB_TOPIC}
-      - --trigger-event
-      - google.pubsub.topic.publish
-      - --service-account
-      - playlist-maker@rapsodie.iam.gserviceaccount.com
-      - --region
-      - europe-west1
-      - --verbosity
-      - info
+      - --entry-point=main
+      - --runtime=python38
+      - --trigger-resource=${_PUBSUB_TOPIC}
+      - --trigger-event=google.pubsub.topic.publish
+      - --service-account=playlist-maker@rapsodie.iam.gserviceaccount.com
+      - --region=europe-west1
+      - --verbosity=info
