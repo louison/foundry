@@ -5,7 +5,7 @@ The foundry app (previsouly known as the playlist maker) is used by Rapsodie to 
 ### TODO
 
 - [ ] create doc for playlist that never gets updated
-- [ ] deply using cloudbuild ?
+- [ ] handle environment variables in cloudbuild
 
 
 ## Design
