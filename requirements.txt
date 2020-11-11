@@ -1,9 +1,9 @@
-https://louison:rs_louison_2020@pypi.rapsodiedata.com/packages/rapsodie_platforms-0.2.1-py3-none-any.whl#md5=6d8aa631dea5c767dfc9eb4e24682221
+# https://louison:rs_louison_2020@pypi.rapsodiedata.com/packages/rapsodie_platforms-0.2.1-py3-none-any.whl#md5=6d8aa631dea5c767dfc9eb4e24682221
 google-cloud-bigquery===1.26.1
 numpy==1.18.4
 pandas==1.0.4
 requests==2.23.0
 spotipy==2.12.0
 twitter==1.18.0
-# rapsodie-platforms==0.2.1
-
+--index-url https://louison:rs_louison_2020@pypi.rapsodiedata.com
+rapsodie-platforms==0.2.1

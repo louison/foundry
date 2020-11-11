@@ -88,7 +88,8 @@ class DailyTop(AutoPlaylist):
         ON
             artist.id = track_artist.artist_id
         WHERE
-            timeframe_ends = CURRENT_DATE() - 1
+            --timeframe_ends = CURRENT_DATE() - 1
+            timeframe_ends = CURRENT_DATE() - 3
             AND timeframe_length = 7
         GROUP BY
             isrc,
