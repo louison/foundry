@@ -69,7 +69,7 @@ class DailyTop(AutoPlaylist):
         ON
             artist.id = track_artist.artist_id
         WHERE
-            timeframe_ends = CURRENT_DATE() - 3
+            timeframe_ends = CURRENT_DATE() - 1
             AND timeframe_length = 7
         GROUP BY
             isrc,
@@ -94,10 +94,12 @@ class DailyTop(AutoPlaylist):
 
         # Build announce message
         announce_data = data.head(top_length).to_json(orient="records")
-        announce = {
-            "entrypoint": "dailytop",
-            "platforms": ["slack"],
-            "entrypoint_args": {"data": json.loads(announce_data)},
-        }
 
-        return {"tracks": data["track_id"].to_list(), "announce": announce}
+        return {
+            "tracks": data["track_id"].to_list(),
+            "announce": {
+                "entrypoint": "dailytop",
+                "argument": "data",
+                "data": announce_data,
+            },
+        }
