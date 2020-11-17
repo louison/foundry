@@ -12,6 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class DailyTop(AutoPlaylist):
+    def announce(self):
+        announce = {
+            "entrypoint": "dailytop",
+            "data": self.data,
+        }
+        return announce
+
     def get_tracks(self, top_length=50, top_timeframe=7):
         """Most streams tracks
 

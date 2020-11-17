@@ -53,9 +53,8 @@ def start(event, context):
         if auto_playlist_class:
             auto_playlist = auto_playlist_class()
             args = message.get("entrypoint_args", {})
-            playlist_content = auto_playlist.get_tracks(**args)
-            message["tracks"] = playlist_content["tracks"]
-            message["announce"] = auto_playlist.data
+            message["tracks"] = auto_playlist.get_tracks()
+            message["announce"] = auto_playlist.announce()
         return generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
