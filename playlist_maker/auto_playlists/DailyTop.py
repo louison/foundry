@@ -5,23 +5,10 @@ import os
 import time
 
 import pandas as pd
-from google.cloud import bigquery, pubsub_v1
+from google.cloud import bigquery
 from playlist_maker.auto_playlists import AutoPlaylist
-from twitter import OAuth, Twitter
 
 logger = logging.getLogger(__name__)
-
-relevant_columns = [
-    "track",
-    "track_id",
-    "isrc",
-    "playcount",
-    "playcount_diff",
-    "playcount_diff_percent",
-    "artist",
-    "artist_id",
-    "update_date",
-]
 
 
 class DailyTop(AutoPlaylist):
@@ -36,8 +23,8 @@ class DailyTop(AutoPlaylist):
             ValueError: If data is missing from source
 
         Returns:
-            dict: "tracks" key contains spotify id lists of tracks to send
-                  "announce" key contains json to send to announcer (akha)
+            dict: `tracks` key contains spotify id lists of tracks to send
+                  `announce` key contains json to send to announcer (akha)
         """
 
         daily_top_query = f"""
@@ -69,8 +56,10 @@ class DailyTop(AutoPlaylist):
         ON
             artist.id = track_artist.artist_id
         WHERE
-            timeframe_ends = CURRENT_DATE() - 1
-            AND timeframe_length = 7
+            --timeframe_ends = CURRENT_DATE() - 5
+            --AND timeframe_length = 7
+            timeframe_ends = "2020-11-12"
+            AND timeframe_length = 1
         GROUP BY
             isrc,
             track.name,
@@ -92,14 +81,14 @@ class DailyTop(AutoPlaylist):
         if data.empty:
             raise ValueError("DailyTop got empty dataframe from BigQuery!")
 
-        # Build announce message
+        # Data to be sent to announcer
         announce_data = data.head(top_length).to_json(orient="records")
 
-        return {
+        playlist_content = {
             "tracks": data["track_id"].to_list(),
             "announce": {
                 "entrypoint": "dailytop",
-                "argument": "data",
                 "data": announce_data,
             },
         }
+        return playlist_content

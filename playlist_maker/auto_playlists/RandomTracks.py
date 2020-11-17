@@ -19,12 +19,12 @@ class RandomTracks(AutoPlaylist):
         return "".join(random.choice(chars) for x in range(str_size))
 
     def get_tracks(self):
-        """Core playlist logic. Gather tracks you want here
+        """Get random tracks to send to playlist
 
         Returns:
-            list -- A list of Spotify tracks song id (strings)
+            dict: `tracks` key contains spotify id lists of tracks to send
+                  `announce` key contains json to send to announcer (akha)
         """
-
         query = """
         SELECT
             id
@@ -38,11 +38,12 @@ class RandomTracks(AutoPlaylist):
         bq_client = bigquery.Client()
         rows = bq_client.query(query).result()
         tracks = [row[0] for row in rows]
-        return {
+
+        playlist_content = {
             "tracks": tracks,
             "announce": {
                 "entrypoint": "generic",
-                "argument": "message",
                 "data": self.random_string(),
             },
         }
+        return playlist_content

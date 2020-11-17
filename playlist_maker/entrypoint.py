@@ -65,25 +65,21 @@ def generic(message=None):
     ### SEND PLAYLIST ANNOUNCE ###
     publisher = pubsub_v1.PublisherClient()
 
+    # Always send playlist update notification
     playlist_update_message = {
         "entrypoint": "playlistupdate",
-        "platforms": ["slack"],
-        "entrypoint_args": {"playlist_entrypoint": message["entrypoint"]},
+        "entrypoint_args": {"data": message["entrypoint"]},
     }
     publisher.publish(
         ANNOUNCER_TOPIC, json.dumps(playlist_update_message).encode("utf-8")
     )
-    # Send custom announce (optional)
-    if message.get("announce"):
+    # Send custom announce if any
+    if message["announce"]:
         announce = message.get("announce")
         announce_message = {
             "entrypoint": announce.get("entrypoint"),
-            "platforms": message["announce_platforms"],
-            "entrypoint_args": {
-                announce.get("argument"): announce.get("data")
-            },
+            "entrypoint_args": {"data": announce.get("data")},
         }
-        logger.debug(announce)
         publisher.publish(ANNOUNCER_TOPIC, json.dumps(announce_message).encode("utf-8"))
 
     ### UPDATE PLAYLIST ###
