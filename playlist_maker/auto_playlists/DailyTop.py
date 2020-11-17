@@ -81,14 +81,17 @@ class DailyTop(AutoPlaylist):
         if data.empty:
             raise ValueError("DailyTop got empty dataframe from BigQuery!")
 
-        # Data to be sent to announcer
-        announce_data = data.head(top_length).to_json(orient="records")
+        self.data = data.head(top_length).to_json(orient="records")
+        return data["track_id"].to_list()
 
-        playlist_content = {
-            "tracks": data["track_id"].to_list(),
-            "announce": {
-                "entrypoint": "dailytop",
-                "data": announce_data,
-            },
-        }
-        return playlist_content
+        # Data to be sent to announcer
+        # announce_data = data.head(top_length).to_json(orient="records")
+
+        # playlist_content = {
+        #     "tracks": data["track_id"].to_list(),
+        #     "announce": {
+        #         "entrypoint": "dailytop",
+        #         "data": announce_data,
+        #     },
+        # }
+        # return playlist_content
