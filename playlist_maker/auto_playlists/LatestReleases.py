@@ -38,4 +38,4 @@ class LatestReleases(AutoPlaylist):
             response_body = response.json()
             for track in response_body["items"]:
                 tracks.append(track["id"])
-        return {"tracks": tracks}
+        return tracks

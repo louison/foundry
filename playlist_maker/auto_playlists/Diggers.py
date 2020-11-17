@@ -100,4 +100,4 @@ class Diggers(AutoPlaylist):
         )
         logger.info("Done!")
         tracks = list(df["track_id"].head(50))
-        return {"tracks": tracks}
+        return tracks

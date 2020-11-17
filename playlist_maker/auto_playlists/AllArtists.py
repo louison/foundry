@@ -27,7 +27,7 @@ class AllArtists(AutoPlaylist):
         logger.info("Processing data")
         logger.info("Done!")
         tracks = data["track_id"].to_list()
-        return {"tracks": tracks}
+        return tracks
 
 
 if __name__ == "__main__":

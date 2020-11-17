@@ -90,15 +90,3 @@ class DailyTop(AutoPlaylist):
 
         self.data = data.head(top_length).to_json(orient="records")
         return data["track_id"].to_list()
-
-        # Data to be sent to announcer
-        # announce_data = data.head(top_length).to_json(orient="records")
-
-        # playlist_content = {
-        #     "tracks": data["track_id"].to_list(),
-        #     "announce": {
-        #         "entrypoint": "dailytop",
-        #         "data": announce_data,
-        #     },
-        # }
-        # return playlist_content

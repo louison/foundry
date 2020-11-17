@@ -14,6 +14,13 @@ logger.setLevel(logging.DEBUG)
 
 
 class RandomTracks(AutoPlaylist):
+    # def announce(self):
+    #     announce = {
+    #         "entrypoint": "generic",
+    #         "data": self.random_string(),
+    #     }
+    #     return announce
+
     def random_string(self, str_size=12):
         chars = string.ascii_letters + string.punctuation
         return "".join(random.choice(chars) for x in range(str_size))
@@ -39,11 +46,4 @@ class RandomTracks(AutoPlaylist):
         rows = bq_client.query(query).result()
         tracks = [row[0] for row in rows]
 
-        playlist_content = {
-            "tracks": tracks,
-            "announce": {
-                "entrypoint": "generic",
-                "data": self.random_string(),
-            },
-        }
-        return playlist_content
+        return tracks
