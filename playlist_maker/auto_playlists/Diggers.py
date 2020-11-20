@@ -22,6 +22,9 @@ class Diggers(AutoPlaylist):
         Args:
             max_timeframe (int, optional): [Oldest track]. Defaults to 30.
             max_followers (int, optional): Defaults to 5000.
+        
+        Returns:
+            list: `tracks` key contains spotify id lists of tracks
         """
 
         database = Database()

@@ -30,8 +30,7 @@ class DailyTop(AutoPlaylist):
             ValueError: If data is missing from source
 
         Returns:
-            dict: `tracks` key contains spotify id lists of tracks to send
-                  `announce` key contains json to send to announcer (akha)
+            list: `tracks` key contains spotify id lists of tracks
         """
 
         daily_top_query = f"""
