@@ -14,12 +14,20 @@ logger.setLevel(logging.DEBUG)
 
 
 class RandomTracks(AutoPlaylist):
+    def announce(self):
+        announce = {
+            "entrypoint": "generic",
+            "data": self.random_string(),
+        }
+        return announce
+
     def random_string(self, str_size=12):
         chars = string.ascii_letters + string.punctuation
         return "".join(random.choice(chars) for x in range(str_size))
 
     def get_tracks(self):
         """Get random tracks to send to playlist
+
         Returns:
             list: `tracks` key contains spotify id lists of tracks
         """
