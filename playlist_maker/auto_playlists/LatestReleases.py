@@ -13,8 +13,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class LatestReleases(AutoPlaylist):
 
+class LatestReleases(AutoPlaylist):
     def get_tracks(self):
         query = """
        SELECT a.artist_id, a.latest_release_date , a.latest_release_uri 
@@ -31,14 +31,11 @@ class LatestReleases(AutoPlaylist):
         s_token = get_token()
         tracks = []
         for row in rows:
-            album_id = row[2].replace('spotify:album:','')
-            album_id = album_id.replace('\"','')
-            url = f'https://api.spotify.com/v1/albums/{album_id}/tracks?country=FR&limit=50&offset=0'
-            response = requests.get(url,headers={
-                    'Authorization': f'Bearer {s_token}'
-            })
+            album_id = row[2].replace("spotify:album:", "")
+            album_id = album_id.replace('"', "")
+            url = f"https://api.spotify.com/v1/albums/{album_id}/tracks?country=FR&limit=50&offset=0"
+            response = requests.get(url, headers={"Authorization": f"Bearer {s_token}"})
             response_body = response.json()
-            for track in response_body['items']:
-                tracks.append(track['id'])
+            for track in response_body["items"]:
+                tracks.append(track["id"])
         return tracks
-

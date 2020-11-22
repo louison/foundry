@@ -106,6 +106,11 @@ class RandomTracks(AutoPlaylist):
 ```
 
 It can take as many arguments as needed.
+The method must return a dictionnary built with following keys
+- `tracks`: a list of Spotify ids that will define which tracks will compose the playlist
+- `announce`: a dict that is the message sent to the announcer (akha). It has the following structure
+    - `entrypoint`: defines the entrypoint triggered in the announcer
+    - `data`: any type of data that will be used by the announcer.
 
 4. in the `entrypoint.py` file update the `AUTO_PLAYLIST` variable with
 

@@ -1,10 +1,10 @@
 import logging
 import os
+import random
+import string
 
 from google.cloud import bigquery
-
 from playlist_maker.auto_playlists import AutoPlaylist
-
 
 ENVIRONMENT = os.environ.get("PYTHON_ENV")
 
@@ -12,15 +12,25 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class RandomTracks(AutoPlaylist):
+    def announce(self):
+        announce = {
+            "entrypoint": "generic",
+            "data": self.random_string(),
+        }
+        return announce
+
+    def random_string(self, str_size=12):
+        chars = string.ascii_letters + string.punctuation
+        return "".join(random.choice(chars) for x in range(str_size))
 
     def get_tracks(self):
-        """Core playlist logic. Gather tracks you want here
+        """Get random tracks to send to playlist
 
         Returns:
-            list -- A list of Spotify tracks song id (strings)
+            list: `tracks` key contains spotify id lists of tracks
         """
-
         query = """
         SELECT
             id
@@ -31,13 +41,8 @@ class RandomTracks(AutoPlaylist):
         LIMIT
             10
         """
-        if ENVIRONMENT == "local":
-            bq_client = bigquery.Client().from_service_account_json(
-                "./utils/rapsodie-21e551b04683.json"
-            )
-        else:
-            bq_client = bigquery.Client()
+        bq_client = bigquery.Client()
         rows = bq_client.query(query).result()
         tracks = [row[0] for row in rows]
-        return tracks
 
+        return tracks

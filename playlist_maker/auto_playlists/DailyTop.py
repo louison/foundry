@@ -1,62 +1,36 @@
 import datetime as dt
+import json
 import logging
 import os
 import time
 
 import pandas as pd
-from google.cloud import bigquery, pubsub_v1
-from twitter import OAuth, Twitter
-
+from google.cloud import bigquery
 from playlist_maker.auto_playlists import AutoPlaylist
 
 logger = logging.getLogger(__name__)
 
-relevant_columns = [
-    "track",
-    "track_id",
-    "isrc",
-    "playcount",
-    "playcount_diff",
-    "playcount_diff_percent",
-    "artist",
-    "artist_id",
-    "update_date",
-]
-
 
 class DailyTop(AutoPlaylist):
-    def create_tweet(self, df, top=5):
-        # TODO: use twitter handles of rappers we have
-        tweet = ""
-        while len(tweet) > 280 or not tweet:
-            i = 1
-            l = []
-            for index, row in df[:top].iterrows():
-                l.append(
-                    (
-                        i,
-                        row["track_name"],
-                        " ".join(row["artist_name"]),
-                        round(row["pct"] * 100, 2),
-                    )
-                )
-                i += 1
-            tweet = f"🤖 Top {top} des sons les plus streamés cette semaine\n"
-            for track in l:
-                tweet += f"#{track[0]} {track[1]}, {track[2]} +{track[3]}%\n"
-            tweet += "https://sdz.sh/ftAg2x"
-            top -= 1
-
-        logger.debug(tweet)
-        message = {"platforms": ["slack", "twitter"], "body": tweet}
-        notifier_topic = "projects/rapsodie/topics/notifier"
-        # publisher = pubsub_v1.PublisherClient()
-        # publisher.publish(notifier_topic, json.dumps(message).encode("utf-8"))
+    def announce(self):
+        announce = {
+            "entrypoint": "dailytop",
+            "data": self.data,
+        }
+        return announce
 
     def get_tracks(self, top_length=50, top_timeframe=7):
-        """Most streams tracks daily
+        """Most streams tracks
+
         Args:
-            top_length (int, optional): How big the ranking is. Defaults to 50.
+            top_length (int, optional): How many tracks in the playlist. Defaults to 50.
+            top_timeframe (int, optional): Timeframe to compute top. Defaults to 7.
+
+        Raises:
+            ValueError: If data is missing from source
+
+        Returns:
+            list: `tracks` key contains spotify id lists of tracks
         """
 
         daily_top_query = f"""
@@ -88,8 +62,10 @@ class DailyTop(AutoPlaylist):
         ON
             artist.id = track_artist.artist_id
         WHERE
-            timeframe_ends = CURRENT_DATE() - 1
-            AND timeframe_length = 7
+            --timeframe_ends = CURRENT_DATE() - 5
+            --AND timeframe_length = 7
+            timeframe_ends = "2020-11-12"
+            AND timeframe_length = 1
         GROUP BY
             isrc,
             track.name,
@@ -108,9 +84,8 @@ class DailyTop(AutoPlaylist):
         bq_client = bigquery.Client()
         data = bq_client.query(daily_top_query).result().to_dataframe()
 
-        # Send tweet
-        # logger.info("send tweet")
-        # self.create_tweet(data)
+        if data.empty:
+            raise ValueError("DailyTop got empty dataframe from BigQuery!")
 
-        # Return tracks for playlist
+        self.data = data.head(top_length).to_json(orient="records")
         return data["track_id"].to_list()

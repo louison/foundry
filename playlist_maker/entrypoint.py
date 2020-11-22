@@ -4,6 +4,7 @@ import os
 import json
 
 import spotipy
+from google.cloud import pubsub_v1
 
 from playlist_maker.User import User
 from playlist_maker.auto_playlists import AllArtists
@@ -23,6 +24,8 @@ spotify_client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
 spotify_redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
 spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
 
+ANNOUNCER_TOPIC = os.environ.get("ANNOUNCER_TOPIC")
+
 PUSH_METHODS = ["append", "replace", "keep"]
 
 AUTO_PLAYLIST = {
@@ -30,15 +33,15 @@ AUTO_PLAYLIST = {
     "random": RandomTracks,
     "diggers": Diggers,
     "allartists": AllArtists,
-    'latestreleases': LatestReleases,
+    "latestreleases": LatestReleases,
     "billionstreams": BillionStreams,
-    "dailytop": DailyTop
+    "dailytop": DailyTop,
 }
 
 
 def start(event, context):
-    if 'data' in event:
-        message = base64.b64decode(event['data']).decode('utf-8')
+    if "data" in event:
+        message = base64.b64decode(event["data"]).decode("utf-8")
         message = json.loads(message)
     else:
         message = event
@@ -50,14 +53,35 @@ def start(event, context):
         if auto_playlist_class:
             auto_playlist = auto_playlist_class()
             args = message.get("entrypoint_args", {})
-            tracks = auto_playlist.get_tracks(**args)
-            message["tracks"] = tracks
+            message["tracks"] = auto_playlist.get_tracks()
+            message["announce"] = auto_playlist.announce()
         return generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
 
 
 def generic(message=None):
+    ### SEND PLAYLIST ANNOUNCE ###
+    publisher = pubsub_v1.PublisherClient()
+
+    # Always send playlist update notification
+    playlist_update_message = {
+        "entrypoint": "playlistupdate",
+        "entrypoint_args": {"data": message["entrypoint"]},
+    }
+    publisher.publish(
+        ANNOUNCER_TOPIC, json.dumps(playlist_update_message).encode("utf-8")
+    )
+    # Send custom announce if any
+    if message["announce"]:
+        announce = message.get("announce")
+        announce_message = {
+            "entrypoint": announce.get("entrypoint"),
+            "entrypoint_args": {"data": announce.get("data")},
+        }
+        publisher.publish(ANNOUNCER_TOPIC, json.dumps(announce_message).encode("utf-8"))
+
+    ### UPDATE PLAYLIST ###
     if not "playlist_name" in message and not "playlist_id" in message:
         raise ValueError("You must provide a name or an id for the playlist")
 
@@ -71,7 +95,6 @@ def generic(message=None):
         client_id=spotify_client_id,
         client_secret=spotify_client_secret,
         redirect_uri=spotify_redirect_uri,
-        # cache_path=".spotify_cache",
         cache_path=credentials_path,
     )
     client = spotipy.Spotify(client_credentials_manager=creds)
@@ -113,13 +136,9 @@ def generic(message=None):
     else:
         playlist_object = client.playlist(message["playlist_id"])
 
-    track_chunks = chunks(message['tracks'], 100)
+    track_chunks = chunks(message["tracks"], 100)
     # First empty the playlist
-    client.user_playlist_replace_tracks(
-        user.username,
-        playlist_object["id"],
-        tracks=[]
-    )
+    client.user_playlist_replace_tracks(user.username, playlist_object["id"], tracks=[])
     # Then append new tracks by batch of 100
     for chunk in track_chunks:
         client.user_playlist_add_tracks(
