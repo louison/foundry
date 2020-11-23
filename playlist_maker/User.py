@@ -1,13 +1,11 @@
 import logging
-import os
-from typing import Optional
 
 import spotipy
 from spotipy import Spotify
 
-logging.basicConfig()
+from playlist_maker.utils import get_credentials
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class User(dict):
@@ -18,18 +16,7 @@ class User(dict):
 
     def connect(self):
         if not self.client:
-            spotify_client_id = os.environ.get("SPOTIFY_CLIENT_ID")
-            spotify_client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-            spotify_redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
-            spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
-
-            creds = spotipy.SpotifyOAuth(
-                scope=spotify_scopes,
-                client_id=spotify_client_id,
-                client_secret=spotify_client_secret,
-                redirect_uri=spotify_redirect_uri,
-                cache_path=".spotify_cache",
-            )
+            creds = get_credentials()
             self.client = spotipy.Spotify(client_credentials_manager=creds)
         else:
             logger.warning(
@@ -55,10 +42,10 @@ class User(dict):
             playlists.extend(response['items'])
         return playlists
 
-    def get_playlist_tracks(self,playlist_id):
+    def get_playlist_tracks(self, playlist_id):
         tracks = []
         offset = 0
-        response = self.client.playlist_tracks(playlist_id,offset=0)
+        response = self.client.playlist_tracks(playlist_id, offset=0)
         if response['items']:
             tracks.extend(response['items'])
         while response['items']:
@@ -66,4 +53,3 @@ class User(dict):
             response = self.client.playlist_tracks(playlist_id, offset=offset)
             tracks.extend(response['items'])
         return tracks
-

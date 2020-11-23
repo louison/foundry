@@ -1,20 +1,19 @@
 import logging
 import os
+from typing import Optional, List
 
 from google.cloud import bigquery
-
-from rapsodie.platforms.database import Database, Artist
+from rapsodie.platforms.GQLDatabase import GQLDatabase
 
 from playlist_maker.auto_playlists import AutoPlaylist
-
-
-ENVIRONMENT = os.environ.get("PYTHON_ENV")
+from playlist_maker.types import NotifierMessage
 
 logger = logging.getLogger(__name__)
 
 
 class Diggers(AutoPlaylist):
-    def get_tracks(self, max_timeframe=30, max_followers=5000, only_primary=False):
+    def get_tracks(self, max_timeframe=30, max_followers=5000,
+                   only_primary=False):
         """Get small artists latest tracks
 
         Args:
@@ -25,8 +24,8 @@ class Diggers(AutoPlaylist):
             list: `tracks` key contains spotify id lists of tracks
         """
 
-        database = Database()
-        artists = database.session.query(Artist).all()
+        database = GQLDatabase()
+        artists = database.fetch_all()
 
         blacklisted = list(filter(lambda x: x.is_blacklisted, artists))
         blacklisted = list(map(lambda x: x.spotify_id, blacklisted))
@@ -91,7 +90,8 @@ class Diggers(AutoPlaylist):
         df = client.query(query).to_dataframe()
         # Sort tracks by most recent release and the by playcount
         df = df.sort_values(
-            ["popularity", "playcount", "release_date"], ascending=[False, False, False]
+            ["popularity", "playcount", "release_date"],
+            ascending=[False, False, False]
         )
         # Group all tracks by artist_id an keep the first one (the most recent one and the most streamed)
         df = df.groupby(["artist_id"]).first().reset_index()
@@ -101,4 +101,10 @@ class Diggers(AutoPlaylist):
         )
         logger.info("Done!")
         tracks = list(df["track_id"].head(50))
+        self.announcement_data = tracks
         return tracks
+
+    def get_announcements(self) -> List[NotifierMessage]:
+        platforms = ['slack']
+        body = "\n".join(self.announcement_data)
+        return [NotifierMessage(platforms=platforms, body=body)]

@@ -13,7 +13,6 @@ TOKEN = None
 TIME = time.time()
 MAIN_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
@@ -72,6 +71,7 @@ def refresh_token():
     if token_cookie:
         token = token_cookie.value
         logger.info(f"new token issued: {token}")
+
 
 if __name__ == '__main__':
     get_token()

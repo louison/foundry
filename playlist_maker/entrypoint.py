@@ -2,28 +2,24 @@ import base64
 import logging
 import os
 import json
+from typing import List
 
 import spotipy
 from google.cloud import pubsub_v1
 
-from playlist_maker.User import User
+from playlist_maker import User
 from playlist_maker.auto_playlists import AllArtists
 from playlist_maker.auto_playlists import LatestReleases
 from playlist_maker.auto_playlists import Diggers
 from playlist_maker.auto_playlists import RandomTracks
 from playlist_maker.auto_playlists import BillionStreams
 from playlist_maker.auto_playlists import DailyTop
-from playlist_maker.utils import chunks
+from playlist_maker.types import Message, NotifierMessage
+from playlist_maker.utils import get_credentials, chunks
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
-spotify_client_id = os.environ.get("SPOTIFY_CLIENT_ID")
-spotify_client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-spotify_redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
-spotify_scopes = os.environ.get("SPOTIFY_SCOPES")
-
+NOTIFIER_TOPIC = "projects/rapsodie/topics/notifier"
 ANNOUNCER_TOPIC = os.environ.get("ANNOUNCER_TOPIC")
 
 PUSH_METHODS = ["append", "replace", "keep"]
@@ -39,12 +35,26 @@ AUTO_PLAYLIST = {
 }
 
 
+def announce(notifier_messages: List[NotifierMessage], pub_client=None, debug=False):
+    if not pub_client:
+        pub_client = pubsub_v1.PublisherClient()
+    for notifier_message in notifier_messages:
+        if debug:
+            print(notifier_message)
+        else:
+            pub_client.publish(
+                NOTIFIER_TOPIC,
+                json.dumps(notifier_message).encode("utf-8")
+            )
+
+
 def start(event, context):
     if "data" in event:
         message = base64.b64decode(event["data"]).decode("utf-8")
         message = json.loads(message)
     else:
         message = event
+    message = Message(**message)
 
     entrypoint_choice = message["entrypoint"]
     if entrypoint_choice in AUTO_PLAYLIST.keys():
@@ -54,50 +64,20 @@ def start(event, context):
             auto_playlist = auto_playlist_class()
             args = message.get("entrypoint_args", {})
             message["tracks"] = auto_playlist.get_tracks()
-            message["announce"] = auto_playlist.announce()
+            announcements = auto_playlist.get_announcements()
+            if announcements:
+                message["announcements"] = announcements
         return generic(message)
     else:
         raise ValueError(f"{message.get('entrypoint')} is not supported")
 
 
 def generic(message=None):
-    ### SEND PLAYLIST ANNOUNCE ###
-    publisher = pubsub_v1.PublisherClient()
-
-    # Always send playlist update notification
-    playlist_update_message = {
-        "entrypoint": "playlistupdate",
-        "entrypoint_args": {"data": message["entrypoint"]},
-    }
-    publisher.publish(
-        ANNOUNCER_TOPIC, json.dumps(playlist_update_message).encode("utf-8")
-    )
-    # Send custom announce if any
-    if message["announce"]:
-        announce = message.get("announce")
-        announce_message = {
-            "entrypoint": announce.get("entrypoint"),
-            "entrypoint_args": {"data": announce.get("data")},
-        }
-        publisher.publish(ANNOUNCER_TOPIC, json.dumps(announce_message).encode("utf-8"))
-
-    ### UPDATE PLAYLIST ###
     if not "playlist_name" in message and not "playlist_id" in message:
         raise ValueError("You must provide a name or an id for the playlist")
 
-    credentials = message["credentials"]
-    credentials_path = f"/tmp/{message['username']}_credentials.json"
-    with open(credentials_path, "w") as f:
-        f.write(json.dumps(credentials))
-
-    creds = spotipy.SpotifyOAuth(
-        scope=spotify_scopes,
-        client_id=spotify_client_id,
-        client_secret=spotify_client_secret,
-        redirect_uri=spotify_redirect_uri,
-        cache_path=credentials_path,
-    )
-    client = spotipy.Spotify(client_credentials_manager=creds)
+    credentials = get_credentials(message)
+    client = spotipy.Spotify(client_credentials_manager=credentials)
     user = User(message["username"], client=client)
     user.connect()
     user.fetch()
@@ -138,7 +118,8 @@ def generic(message=None):
 
     track_chunks = chunks(message["tracks"], 100)
     # First empty the playlist
-    client.user_playlist_replace_tracks(user.username, playlist_object["id"], tracks=[])
+    client.user_playlist_replace_tracks(user.username, playlist_object["id"],
+                                        tracks=[])
     # Then append new tracks by batch of 100
     for chunk in track_chunks:
         client.user_playlist_add_tracks(
@@ -151,4 +132,5 @@ def generic(message=None):
         description=message.get("description", ""),
         public=message.get("public", False),
     )
-    os.remove(credentials_path)
+    if message['announcements']:
+        announce(message.get('announcements'))

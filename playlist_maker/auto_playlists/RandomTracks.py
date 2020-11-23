@@ -6,11 +6,7 @@ import string
 from google.cloud import bigquery
 from playlist_maker.auto_playlists import AutoPlaylist
 
-ENVIRONMENT = os.environ.get("PYTHON_ENV")
-
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class RandomTracks(AutoPlaylist):
