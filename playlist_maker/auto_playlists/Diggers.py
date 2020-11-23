@@ -73,7 +73,7 @@ class Diggers(AutoPlaylist):
             from
             (
             select * , row_number() over (partition by artist_id order by last_updated DESC) as rn
-            from rapsodie.rapsodie_main.artist_creatorabout
+            from rapsodie.rapsodie_main.spotify_artist_creatorabout
             ) where rn =1 ) as ac on ac.artist_id = stam.artist_id
         where ac.artist_id is not null
         {oprimary_condition}

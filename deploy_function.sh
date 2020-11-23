@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-gcloud functions deploy playlist_maker_debug \
+gcloud functions deploy playlist_maker \
    --allow-unauthenticated \
    --entry-point main \
    --runtime python38 \
