@@ -35,7 +35,8 @@ AUTO_PLAYLIST = {
 }
 
 
-def announce(notifier_messages: List[NotifierMessage], pub_client=None, debug=False):
+def announce(notifier_messages: List[NotifierMessage], pub_client=None,
+             debug=False):
     if not pub_client:
         pub_client = pubsub_v1.PublisherClient()
     for notifier_message in notifier_messages:

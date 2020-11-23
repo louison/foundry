@@ -20,4 +20,4 @@ class Message(TypedDict):
     append: bool
     credentials: Dict
     tracks: List[str]
-    announcement: NotifierMessage
+    announcements: List[NotifierMessage]
