@@ -1,10 +1,7 @@
-import datetime as dt
+import datetime
 import json
 import logging
-import os
-import time
 
-import pandas as pd
 from google.cloud import bigquery
 from playlist_maker.auto_playlists import AutoPlaylist
 from playlist_maker.types import NotifierMessage
@@ -60,7 +57,7 @@ class DailyTop(AutoPlaylist):
             list: `tracks` key contains spotify id lists of tracks
         """
 
-        daily_top_query = f"""
+        daily_top_query = """
             SELECT
                 ARRAY_AGG(DISTINCT track.id)[
             OFFSET
@@ -91,7 +88,7 @@ class DailyTop(AutoPlaylist):
             WHERE
                 --timeframe_ends = CURRENT_DATE() - 5
                 --AND timeframe_length = 7
-                timeframe_ends = "2020-11-12"
+                timeframe_ends = "{date}"
                 AND timeframe_length = 1
             GROUP BY
                 isrc,
@@ -109,7 +106,12 @@ class DailyTop(AutoPlaylist):
         # Get Data
         logger.info("fetch data from bigquery")
         bq_client = bigquery.Client()
-        data = bq_client.query(daily_top_query).result().to_dataframe()
+        data = bq_client.query(
+            daily_top_query.format(
+                top_length=top_length,
+                date=datetime.datetime.today().date()
+            )
+        ).result().to_dataframe()
 
         if data.empty:
             raise ValueError("DailyTop got empty dataframe from BigQuery!")

@@ -64,7 +64,7 @@ def start(event, context):
         if auto_playlist_class:
             auto_playlist = auto_playlist_class()
             args = message.get("entrypoint_args", {})
-            message["tracks"] = auto_playlist.get_tracks()
+            message["tracks"] = auto_playlist.get_tracks(**args)
             announcements = auto_playlist.get_announcements()
             if announcements:
                 message["announcements"] = announcements
