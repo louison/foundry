@@ -5,3 +5,4 @@ requests==2.23.0
 spotipy==2.12.0
 twitter==1.18.0
 rapsodie-platforms==0.3.14
+rapsodie-dsci==0.0.5.2
