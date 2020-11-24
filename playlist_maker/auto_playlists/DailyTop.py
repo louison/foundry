@@ -1,20 +1,12 @@
-import sys
-import datetime
-import json
 import pandas as pd
-from pprint import pprint
 
 from gql import gql
 import logging
 
-from google.cloud import bigquery
 from rapsodie.platforms.GQLDatabase import GQLDatabase
 
-from playlist_maker.auto_playlists import AutoPlaylist
-from playlist_maker.types import NotifierMessage
+from playlist_maker.auto_playlists import AutoPlaylist from playlist_maker.types import NotifierMessage
 from rapsodie.dsci.compute.top_streams import compute_evolution
-
-from playlist_maker.utils import chunks
 
 logger = logging.getLogger(__name__)
 
@@ -81,31 +73,12 @@ class DailyTop(AutoPlaylist):
         return announcements
 
     def get_tracks(self, top_length=50, top_timeframe=7):
-        # ARRAY_AGG(DISTINCT
-        # track.id)[
-        #     OFFSET
-        #     (0)]
-        # track_id,
-        # --track.id
-        # track_id,
-        # track.name
-        # track_name,
-        # ARRAY_AGG(DISTINCT
-        # artist.name) artist_name,
-        # stream_evolution.pct,
-        # stream_evolution.playcount,
-        # stream_evolution.isrc,
-        # MAX(track.album_release_date)
-        # release_date,
-        # stream_evolution.timeframe_ends,
-        # stream_evolution.timeframe_length,
-        df = compute_evolution(1, returns_df=True)
-        df = df.sort_values('pct', ascending=False).head(top_length)
+        df = compute_evolution(1, returns_df=True) # Get stream evolution for timeframe = 1
+        df = df.sort_values('pct', ascending=False).head(top_length) # We want the top_length highest pct values
+        # Query additional metadata for tracks
         database = GQLDatabase()
         query = gql(GQL_QUERY)
-        params = {
-            'isrcs': list(df['isrc'])
-        }
+        params = {'isrcs': list(df['isrc'])}
         result = database.client.execute(query, variable_values=params)
         df2 = pd.DataFrame(result['bq_spotify_track'])
         df2 = df2.groupby('isrc').first()
