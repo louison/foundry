@@ -5,7 +5,8 @@ import logging
 
 from rapsodie.platforms.GQLDatabase import GQLDatabase
 
-from playlist_maker.auto_playlists import AutoPlaylist from playlist_maker.types import NotifierMessage
+from playlist_maker.auto_playlists import AutoPlaylist
+from playlist_maker.types import NotifierMessage
 from rapsodie.dsci.compute.top_streams import compute_evolution
 
 logger = logging.getLogger(__name__)
