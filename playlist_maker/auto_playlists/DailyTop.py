@@ -86,5 +86,4 @@ class DailyTop(AutoPlaylist):
         df = df.merge(df2, left_on='isrc', right_on='isrc')
         self.data = df.sort_values('pct', ascending=False).to_dict(
             orient='records')
-
         return list(df['id'])
