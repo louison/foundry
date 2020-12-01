@@ -137,3 +137,7 @@ dmypy.json
 *-event.json
 /credentials.json
 sandox_creds.json
+
+.config/
+.jupyter/
+.local/
