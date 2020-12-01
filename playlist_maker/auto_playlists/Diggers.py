@@ -45,7 +45,7 @@ class Diggers(AutoPlaylist):
                              order by a.popularity DESC)[safe_offset(0)] as t_data,
             from (
                      select *, row_number() over (partition by track_id,album_id order by last_updated DESC) as rn
-                     from rapsodie.rapsodie_main.spotify_track_playcount_trunc_latest
+                     from rapsodie.rapsodie_main.spotify_track_playcount
                  ) a
                      left join rapsodie.rapsodie_main.spotify_track as st
             on st.id = a.track_id
