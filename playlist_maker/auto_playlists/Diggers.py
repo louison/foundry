@@ -73,6 +73,7 @@ and  DATE_DIFF(CURRENT_DATE ()
             , sap.latest_release_date 
             , DAY) <= 30
 and sap.monthly_listeners <= 10000
+and sap.artist_id not in ('{blacklisted}') 
 group by sap.artist_id
 order by str.popularity desc;
         """
