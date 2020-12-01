@@ -59,7 +59,7 @@ class DailyTop(AutoPlaylist):
         prefix = "🤖 Top {top} des sons les plus streamés aujourd'hui\n".format(
             top=top)
         body = "\n".join(tracks[:top])
-        suffix = "https://sdz.sh/ftAg2x"
+        suffix = "\nhttps://sdz.sh/ftAg2x"
         while len(prefix) + len(body) + len(suffix) > 280:
             top = top - 1
             body = "\n".join(tracks[:top])
