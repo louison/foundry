@@ -23,6 +23,7 @@ class LatestReleases(AutoPlaylist):
         GROUP BY artist_id
         ) b ON a.artist_id = b.artist_id AND a.latest_release_date = b.latest_release_date
         where cast(a.latest_release_date as DATE) between DATE_SUB(current_date(), INTERVAL 0 DAY) and current_date()
+        order by a.latest_release_date desc
         """
         bq_client = bigquery.Client()
         rows = bq_client.query(query).result()
