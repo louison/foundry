@@ -1,11 +1,13 @@
 import logging
 import os
+from typing import List
 
 import requests
 from google.cloud import bigquery
 
 from playlist_maker.auto_playlists import AutoPlaylist
 from playlist_maker.tokenito import get_token
+from playlist_maker.types import NotifierMessage
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +16,10 @@ class LatestReleases(AutoPlaylist):
     def get_tracks(self):
         query = """
        SELECT a.artist_id, a.latest_release_date , a.latest_release_uri 
-        FROM `rapsodie.rapsodie_main.artist_page` a
+        FROM `rapsodie.rapsodie_main.spotify_artist_page` a
         INNER JOIN (
             SELECT artist_id, max(latest_release_date) latest_release_date
-        FROM `rapsodie.rapsodie_main.artist_page` 
+        FROM `rapsodie.rapsodie_main.spotify_artist_page` 
         GROUP BY artist_id
         ) b ON a.artist_id = b.artist_id AND a.latest_release_date = b.latest_release_date
         where cast(a.latest_release_date as DATE) between DATE_SUB(current_date(), INTERVAL 0 DAY) and current_date()
@@ -35,3 +37,6 @@ class LatestReleases(AutoPlaylist):
             for track in response_body["items"]:
                 tracks.append(track["id"])
         return tracks
+
+    def get_announcements(self) -> List[NotifierMessage]:
+        return []

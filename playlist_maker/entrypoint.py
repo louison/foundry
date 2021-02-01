@@ -133,5 +133,5 @@ def generic(message=None):
         description=message.get("description", ""),
         public=message.get("public", False),
     )
-    if message['announcements']:
+    if message.get('announcements'):
         announce(message.get('announcements'))
