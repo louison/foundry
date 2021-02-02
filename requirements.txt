@@ -1,5 +1,5 @@
 --extra-index-url https://louison:rs_louison_2020@pypi.rapsodiedata.com
-google-cloud-bigquery===1.26.1
+google-cloud-bigquery===2.7.0
 numpy==1.18.4
 pandas==1.0.4
 requests==2.23.0
