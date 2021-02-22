@@ -52,7 +52,7 @@ Here's an example of how to complete it
 ```
 {
     "entrypoint": "diggers", # which playlist is concerned [random, diggers]
-    "username": "heus92", # your Spotify user name
+    "username": "loulouxd", # your Spotify user name
     "playlist_name": "", # if it doesn't exist a new playlist will be created
     "playlist_id": "", # your existing playlist id
     "description": "", # playlist description that will appear in Spotify
@@ -68,7 +68,7 @@ Here's an example of how to complete it
 
 Make sure to name with the following convention to make sure you're credentials won't be committed: `user-entrypoint-event.json`.
 
-For example Rashad's event for the random playlist will be name `rashad-random-event.json` and production event for the diggers playlist will be `rapsodie-diggers-event.json`
+For example Rashad's event for the random playlist will be name `louison-random-event.json` and production event for the diggers playlist will be `rapsodie-diggers-event.json`
 
 ### Go live !
 
